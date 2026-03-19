@@ -10,172 +10,189 @@
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
   <style>
     :root {
-      --bg:    #0f0e0c;
-      --bg2:   #181610;
-      --bg3:   #211f18;
-      --bg4:   #2b2820;
-      --bg5:   #353028;
-      --ln:    rgba(255,255,255,0.07);
-      --ln2:   rgba(255,255,255,0.12);
-      --tx:    #ede5d8;
-      --soft:  #a8967e;
-      --dim:   #665a48;
-      --red:   #d4503a;
-      --red2:  rgba(212,80,58,0.14);
-      --gold:  #c8a84b;
-      --gold2: rgba(200,168,75,0.11);
-      --grn:   #5a9e72;
-      --grn2:  rgba(90,158,114,0.11);
-      --teal:  #4a9eaf;
-      --teal2: rgba(74,158,175,0.11);
-      --r: 8px; --r2: 12px;
+      --bg:#0f0e0c; --bg2:#181610; --bg3:#211f18; --bg4:#2b2820; --bg5:#353028;
+      --ln:rgba(255,255,255,.07); --ln2:rgba(255,255,255,.12);
+      --tx:#ede5d8; --soft:#a8967e; --dim:#665a48;
+      --red:#d4503a; --red2:rgba(212,80,58,.14);
+      --gold:#c8a84b; --gold2:rgba(200,168,75,.11);
+      --grn:#5a9e72; --grn2:rgba(90,158,114,.11);
+      --teal:#4a9eaf; --teal2:rgba(74,158,175,.11);
+      --r:8px; --r2:12px;
     }
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
-    body { font-family: 'Noto Sans KR', sans-serif; background: var(--bg); color: var(--tx); min-height: 100vh; display: flex; flex-direction: column; }
-    ::-webkit-scrollbar { width: 4px; height: 4px; }
-    ::-webkit-scrollbar-thumb { background: var(--bg5); border-radius: 4px; }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;display:flex;flex-direction:column}
+    ::-webkit-scrollbar{width:4px;height:4px}
+    ::-webkit-scrollbar-thumb{background:var(--bg5);border-radius:4px}
 
     /* HEADER */
-    header { position: sticky; top: 0; z-index: 300; background: rgba(15,14,12,0.94); backdrop-filter: blur(14px); border-bottom: 1px solid var(--ln); }
-    .hdr { max-width: 1120px; margin: 0 auto; padding: 13px 24px; display: flex; align-items: center; gap: 12px; }
-    .logo { font-family: 'Noto Serif KR', serif; font-size: 19px; font-weight: 700; letter-spacing: 0.03em; }
-    .logo .dot { color: var(--red); }
-    .hdr-div { width: 1px; height: 16px; background: var(--ln2); margin: 0 4px; }
-    .hdr-sub { font-size: 11px; color: var(--dim); font-weight: 300; letter-spacing: 0.05em; }
-    .hdr-r { margin-left: auto; display: flex; align-items: center; gap: 6px; }
-    .pill { font-size: 10px; font-family: 'JetBrains Mono', monospace; color: var(--dim); border: 1px solid var(--ln); border-radius: 20px; padding: 3px 9px; }
-    .pill.g { color: var(--grn); border-color: rgba(90,158,114,0.3); }
+    header{position:sticky;top:0;z-index:300;background:rgba(15,14,12,.94);backdrop-filter:blur(14px);border-bottom:1px solid var(--ln)}
+    .hdr{max-width:1120px;margin:0 auto;padding:13px 24px;display:flex;align-items:center;gap:12px}
+    .logo{font-family:'Noto Serif KR',serif;font-size:19px;font-weight:700;letter-spacing:.03em}
+    .logo .dot{color:var(--red)}
+    .hdr-div{width:1px;height:16px;background:var(--ln2);margin:0 4px}
+    .hdr-sub{font-size:11px;color:var(--dim);font-weight:300;letter-spacing:.05em}
+    .hdr-r{margin-left:auto;display:flex;align-items:center;gap:6px}
+    .pill{font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--dim);border:1px solid var(--ln);border-radius:20px;padding:3px 9px}
+    .pill.g{color:var(--grn);border-color:rgba(90,158,114,.3)}
 
     /* LAYOUT */
-    .wrap { max-width: 1120px; margin: 0 auto; padding: 28px 24px 80px; width: 100%; display: grid; grid-template-columns: 1fr 370px; gap: 22px; align-items: start; }
-    .left { display: flex; flex-direction: column; gap: 18px; }
-    .slabel { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--dim); font-weight: 500; font-family: 'JetBrains Mono', monospace; margin-bottom: 8px; }
+    .wrap{max-width:1120px;margin:0 auto;padding:28px 24px 80px;width:100%;display:grid;grid-template-columns:1fr 370px;gap:22px;align-items:start}
+    .left{display:flex;flex-direction:column;gap:18px}
+    .slabel{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);font-weight:500;font-family:'JetBrains Mono',monospace;margin-bottom:8px}
 
     /* LANG BOX */
-    .lang-box { background: var(--bg2); border: 1px solid var(--ln); border-radius: var(--r2); padding: 14px 16px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
-    .lang-info { flex: 1; min-width: 200px; }
-    .lang-main { font-family: 'Noto Serif KR', serif; font-size: 14px; font-weight: 600; margin-bottom: 3px; }
-    .lang-desc { font-size: 11px; color: var(--soft); line-height: 1.5; }
-    .lang-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 6px; }
-    .ltag { font-size: 10px; font-family: 'JetBrains Mono', monospace; border: 1px solid var(--ln2); border-radius: 4px; padding: 2px 7px; color: var(--soft); }
-    .ltag.hi { color: var(--gold); border-color: rgba(200,168,75,0.3); background: var(--gold2); }
-    .hanja-toggle { display: flex; border: 1px solid var(--ln2); border-radius: 6px; overflow: hidden; }
-    .htbtn { padding: 6px 14px; font-size: 12px; font-family: 'Noto Sans KR', sans-serif; border: none; cursor: pointer; transition: all 0.15s; background: transparent; color: var(--soft); }
-    .htbtn.active { background: var(--bg5); color: var(--tx); }
-    .htbtn:first-child { border-right: 1px solid var(--ln2); }
+    .lang-box{background:var(--bg2);border:1px solid var(--ln);border-radius:var(--r2);padding:14px 16px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+    .lang-info{flex:1;min-width:200px}
+    .lang-main{font-family:'Noto Serif KR',serif;font-size:14px;font-weight:600;margin-bottom:3px}
+    .lang-desc{font-size:11px;color:var(--soft);line-height:1.5}
+    .lang-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
+    .ltag{font-size:10px;font-family:'JetBrains Mono',monospace;border:1px solid var(--ln2);border-radius:4px;padding:2px 7px;color:var(--soft)}
+    .ltag.hi{color:var(--gold);border-color:rgba(200,168,75,.3);background:var(--gold2)}
+    .hanja-toggle{display:flex;border:1px solid var(--ln2);border-radius:6px;overflow:hidden}
+    .htbtn{padding:6px 14px;font-size:12px;font-family:'Noto Sans KR',sans-serif;border:none;cursor:pointer;transition:all .15s;background:transparent;color:var(--soft)}
+    .htbtn.active{background:var(--bg5);color:var(--tx)}
+    .htbtn:first-child{border-right:1px solid var(--ln2)}
+
+    /* PREPROCESSING BOX */
+    .prep-box{background:var(--bg2);border:1px solid var(--ln);border-radius:var(--r2);overflow:hidden}
+    .prep-head{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;cursor:pointer;user-select:none;transition:background .15s}
+    .prep-head:hover{background:var(--bg3)}
+    .prep-head-left{display:flex;align-items:center;gap:10px}
+    .prep-head-title{font-family:'Noto Serif KR',serif;font-size:14px;font-weight:600}
+    .prep-head-desc{font-size:11px;color:var(--soft)}
+    .prep-badge{font-size:10px;font-family:'JetBrains Mono',monospace;background:var(--grn2);color:var(--grn);border:1px solid rgba(90,158,114,.3);border-radius:4px;padding:2px 7px}
+    .prep-badge.off{background:var(--bg4);color:var(--dim);border-color:var(--ln)}
+    .prep-arrow{font-size:11px;color:var(--dim);transition:transform .2s}
+    .prep-arrow.open{transform:rotate(180deg)}
+    .prep-body{display:none;padding:0 16px 16px;display:flex;flex-direction:column;gap:14px}
+    .prep-body.closed{display:none}
+
+    .prep-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+    .prep-label{font-size:11px;color:var(--soft);min-width:80px;font-weight:500}
+    .prep-val{font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--gold);min-width:36px;text-align:right}
+    input[type=range]{flex:1;min-width:120px;accent-color:var(--red);height:3px;cursor:pointer}
+    .toggle-row{display:flex;gap:8px;flex-wrap:wrap}
+    .tog{display:flex;align-items:center;gap:6px;border:1px solid var(--ln);background:var(--bg3);border-radius:6px;padding:5px 11px;font-size:11.5px;color:var(--soft);cursor:pointer;transition:all .15s;user-select:none}
+    .tog:hover{border-color:var(--ln2);color:var(--tx)}
+    .tog.on{background:var(--bg4);border-color:var(--ln2);color:var(--tx)}
+    .tog .dot-ind{width:7px;height:7px;border-radius:50%;background:var(--dim);transition:background .15s;flex-shrink:0}
+    .tog.on .dot-ind{background:var(--grn)}
+
+    /* PREVIEW PAIR */
+    .preview-pair{display:none;gap:10px}
+    .preview-pair.on{display:grid;grid-template-columns:1fr 1fr}
+    .prev-slot{display:flex;flex-direction:column;gap:5px}
+    .prev-slot-label{font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--dim);letter-spacing:.08em;text-transform:uppercase}
+    .prev-slot canvas,.prev-slot img{width:100%;border-radius:6px;border:1px solid var(--ln);object-fit:contain;background:var(--bg3);max-height:200px}
 
     /* DROP ZONE */
-    .drop-zone { border: 1px dashed rgba(255,255,255,0.1); border-radius: var(--r2); min-height: 170px; background: var(--bg2); cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; }
-    .drop-zone::before { content:''; position:absolute; inset:0; background:radial-gradient(ellipse at 50% 0%,rgba(212,80,58,.05) 0%,transparent 55%); pointer-events:none; }
-    .drop-zone:hover, .drop-zone.drag-over { border-color: var(--red); background: rgba(212,80,58,.03); }
-    .drop-zone.filled { padding: 16px; cursor: default; border-style: solid; border-color: var(--bg5); align-items: flex-start; }
-    .dz-inner { display:flex; flex-direction:column; align-items:center; gap:7px; padding:28px 20px; }
-    .dz-icon { font-size:32px; opacity:.35; }
-    .dz-title { font-family:'Noto Serif KR',serif; font-size:15px; color:var(--tx); }
-    .dz-hint { font-size:11.5px; color:var(--dim); line-height:1.65; text-align:center; }
-    .dz-hint b { color:var(--gold); font-weight:500; }
-    #fileInput { display:none; }
-    #previewWrap { display:none; flex-direction:column; align-items:center; gap:8px; width:100%; }
-    #previewWrap.on { display:flex; }
-    #previewImg { max-width:100%; max-height:260px; object-fit:contain; border-radius:6px; }
-    .prev-meta { font-size:11px; color:var(--dim); font-family:'JetBrains Mono',monospace; }
-    .btn-resel { font-size:11.5px; color:var(--red); background:none; border:none; cursor:pointer; font-family:inherit; text-decoration:underline; text-underline-offset:2px; }
+    .drop-zone{border:1px dashed rgba(255,255,255,.1);border-radius:var(--r2);min-height:160px;background:var(--bg2);cursor:pointer;transition:all .2s;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
+    .drop-zone::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(212,80,58,.05) 0%,transparent 55%);pointer-events:none}
+    .drop-zone:hover,.drop-zone.drag-over{border-color:var(--red);background:rgba(212,80,58,.03)}
+    .drop-zone.filled{padding:16px;cursor:default;border-style:solid;border-color:var(--bg5);align-items:flex-start}
+    .dz-inner{display:flex;flex-direction:column;align-items:center;gap:7px;padding:24px 20px}
+    .dz-icon{font-size:30px;opacity:.35}
+    .dz-title{font-family:'Noto Serif KR',serif;font-size:15px;color:var(--tx)}
+    .dz-hint{font-size:11.5px;color:var(--dim);line-height:1.65;text-align:center}
+    .dz-hint b{color:var(--gold);font-weight:500}
+    #fileInput{display:none}
+    #previewWrap{display:none;flex-direction:column;align-items:center;gap:8px;width:100%}
+    #previewWrap.on{display:flex}
+    #previewImg{max-width:100%;max-height:240px;object-fit:contain;border-radius:6px}
+    .prev-meta{font-size:11px;color:var(--dim);font-family:'JetBrains Mono',monospace}
+    .btn-resel{font-size:11.5px;color:var(--red);background:none;border:none;cursor:pointer;font-family:inherit;text-decoration:underline;text-underline-offset:2px}
 
     /* RUN */
-    .run-row { display:flex; align-items:center; gap:12px; }
-    .btn-run { display:flex; align-items:center; gap:7px; background:var(--red); color:#fff; border:none; border-radius:var(--r); padding:11px 22px; font-size:13.5px; font-family:'Noto Sans KR',sans-serif; font-weight:500; cursor:pointer; transition:all 0.15s; }
-    .btn-run:hover:not(:disabled) { background:#e05a44; transform:translateY(-1px); box-shadow:0 5px 18px rgba(212,80,58,.35); }
-    .btn-run:disabled { opacity:.35; cursor:not-allowed; transform:none; box-shadow:none; }
-    .run-st { font-size:12px; color:var(--dim); }
+    .run-row{display:flex;align-items:center;gap:12px}
+    .btn-run{display:flex;align-items:center;gap:7px;background:var(--red);color:#fff;border:none;border-radius:var(--r);padding:11px 22px;font-size:13.5px;font-family:'Noto Sans KR',sans-serif;font-weight:500;cursor:pointer;transition:all .15s}
+    .btn-run:hover:not(:disabled){background:#e05a44;transform:translateY(-1px);box-shadow:0 5px 18px rgba(212,80,58,.35)}
+    .btn-run:disabled{opacity:.35;cursor:not-allowed;transform:none;box-shadow:none}
+    .run-st{font-size:12px;color:var(--dim)}
 
     /* PROGRESS */
-    .prog-wrap { display:none; flex-direction:column; gap:6px; }
-    .prog-wrap.on { display:flex; }
-    .prog-track { height:3px; background:var(--bg4); border-radius:3px; overflow:hidden; }
-    .prog-fill { height:100%; width:0%; background:linear-gradient(90deg,var(--red),var(--gold)); border-radius:3px; transition:width 0.3s; }
-    .prog-labels { display:flex; justify-content:space-between; font-size:11px; color:var(--dim); font-family:'JetBrains Mono',monospace; }
+    .prog-wrap{display:none;flex-direction:column;gap:6px}
+    .prog-wrap.on{display:flex}
+    .prog-track{height:3px;background:var(--bg4);border-radius:3px;overflow:hidden}
+    .prog-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--red),var(--gold));border-radius:3px;transition:width .3s}
+    .prog-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--dim);font-family:'JetBrains Mono',monospace}
 
     /* RESULT */
-    .result-wrap { display:none; flex-direction:column; gap:12px; }
-    .result-wrap.on { display:flex; }
-    .mode-tabs { display:flex; border:1px solid var(--ln2); border-radius:var(--r); overflow:hidden; align-self:flex-start; }
-    .mtab { display:flex; align-items:center; gap:5px; padding:7px 16px; font-size:12px; font-family:'Noto Sans KR',sans-serif; border:none; cursor:pointer; transition:all 0.15s; background:transparent; color:var(--soft); }
-    .mtab + .mtab { border-left:1px solid var(--ln2); }
-    .mtab.active { background:var(--bg4); color:var(--tx); }
-    .badge { font-size:9.5px; font-family:'JetBrains Mono',monospace; background:var(--teal2); color:var(--teal); border-radius:3px; padding:1px 5px; }
-    .res-hdr { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; }
-    .res-title { font-family:'Noto Serif KR',serif; font-size:14px; font-weight:600; display:flex; align-items:center; gap:8px; }
-    .cpill { font-family:'JetBrains Mono',monospace; font-size:10px; padding:2px 8px; border-radius:10px; border:1px solid; }
-    .ch { color:var(--grn); border-color:rgba(90,158,114,.3); background:var(--grn2); }
-    .cm { color:var(--gold); border-color:rgba(200,168,75,.3); background:var(--gold2); }
-    .cl { color:var(--red); border-color:rgba(212,80,58,.3); background:var(--red2); }
-    .res-btns { display:flex; gap:6px; flex-wrap:wrap; }
-    .btn-sm { display:flex; align-items:center; gap:4px; border:1px solid var(--ln); background:var(--bg3); border-radius:6px; padding:5px 12px; font-size:11.5px; color:var(--soft); font-family:inherit; cursor:pointer; transition:all 0.15s; white-space:nowrap; }
-    .btn-sm:hover { border-color:var(--ln2); color:var(--tx); }
-    .btn-sm.ok { color:var(--grn); border-color:rgba(90,158,114,.35); }
-    .btn-sm.teal { color:var(--teal); border-color:rgba(74,158,175,.35); background:var(--teal2); }
-    .btn-sm.teal:hover { background:rgba(74,158,175,.2); }
-    .out-panel { display:none; flex-direction:column; gap:10px; }
-    .out-panel.on { display:flex; }
-    .result-ta { width:100%; min-height:180px; max-height:420px; border:1px solid var(--ln); border-radius:var(--r); padding:15px; font-family:'Noto Serif KR',serif; font-size:15px; line-height:1.9; color:var(--tx); background:var(--bg2); resize:vertical; outline:none; transition:border-color .15s; }
-    .result-ta:focus { border-color:var(--ln2); }
-
-    /* TABLE */
-    .table-note { display:flex; gap:8px; background:var(--teal2); border:1px solid rgba(74,158,175,.2); border-radius:var(--r); padding:11px 13px; font-size:11px; color:var(--soft); line-height:1.65; }
-    .table-note b { color:var(--teal); }
-    .table-preview-wrap { border:1px solid var(--ln); border-radius:var(--r); background:var(--bg2); overflow:auto; max-height:400px; }
-    .tbl-preview { border-collapse:collapse; width:max-content; min-width:100%; font-family:'Noto Serif KR',serif; font-size:13.5px; }
-    .tbl-preview th,.tbl-preview td { border:1px solid var(--bg5); padding:7px 12px; text-align:left; color:var(--tx); white-space:nowrap; vertical-align:top; }
-    .tbl-preview thead th { background:var(--bg4); font-weight:500; font-size:11px; color:var(--soft); font-family:'JetBrains Mono',monospace; letter-spacing:.04em; }
-    .tbl-preview tr:nth-child(even) td { background:rgba(255,255,255,.02); }
-
-    .res-stats { display:flex; gap:14px; font-size:11px; color:var(--dim); font-family:'JetBrains Mono',monospace; flex-wrap:wrap; }
-    .res-stats b { color:var(--soft); }
-
-    /* NOTICE */
-    .notice { display:flex; gap:9px; background:var(--gold2); border:1px solid rgba(200,168,75,.2); border-radius:var(--r); padding:12px 14px; font-size:11.5px; color:var(--soft); line-height:1.65; }
-    .notice b { color:var(--gold); }
+    .result-wrap{display:none;flex-direction:column;gap:12px}
+    .result-wrap.on{display:flex}
+    .mode-tabs{display:flex;border:1px solid var(--ln2);border-radius:var(--r);overflow:hidden;align-self:flex-start}
+    .mtab{display:flex;align-items:center;gap:5px;padding:7px 16px;font-size:12px;font-family:'Noto Sans KR',sans-serif;border:none;cursor:pointer;transition:all .15s;background:transparent;color:var(--soft)}
+    .mtab+.mtab{border-left:1px solid var(--ln2)}
+    .mtab.active{background:var(--bg4);color:var(--tx)}
+    .badge{font-size:9.5px;font-family:'JetBrains Mono',monospace;background:var(--teal2);color:var(--teal);border-radius:3px;padding:1px 5px}
+    .res-hdr{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+    .res-title{font-family:'Noto Serif KR',serif;font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px}
+    .cpill{font-family:'JetBrains Mono',monospace;font-size:10px;padding:2px 8px;border-radius:10px;border:1px solid}
+    .ch{color:var(--grn);border-color:rgba(90,158,114,.3);background:var(--grn2)}
+    .cm{color:var(--gold);border-color:rgba(200,168,75,.3);background:var(--gold2)}
+    .cl{color:var(--red);border-color:rgba(212,80,58,.3);background:var(--red2)}
+    .res-btns{display:flex;gap:6px;flex-wrap:wrap}
+    .btn-sm{display:flex;align-items:center;gap:4px;border:1px solid var(--ln);background:var(--bg3);border-radius:6px;padding:5px 12px;font-size:11.5px;color:var(--soft);font-family:inherit;cursor:pointer;transition:all .15s;white-space:nowrap}
+    .btn-sm:hover{border-color:var(--ln2);color:var(--tx)}
+    .btn-sm.ok{color:var(--grn);border-color:rgba(90,158,114,.35)}
+    .btn-sm.teal{color:var(--teal);border-color:rgba(74,158,175,.35);background:var(--teal2)}
+    .btn-sm.teal:hover{background:rgba(74,158,175,.2)}
+    .out-panel{display:none;flex-direction:column;gap:10px}
+    .out-panel.on{display:flex}
+    .result-ta{width:100%;min-height:180px;max-height:420px;border:1px solid var(--ln);border-radius:var(--r);padding:15px;font-family:'Noto Serif KR',serif;font-size:15px;line-height:1.9;color:var(--tx);background:var(--bg2);resize:vertical;outline:none;transition:border-color .15s}
+    .result-ta:focus{border-color:var(--ln2)}
+    .table-note{display:flex;gap:8px;background:var(--teal2);border:1px solid rgba(74,158,175,.2);border-radius:var(--r);padding:11px 13px;font-size:11px;color:var(--soft);line-height:1.65}
+    .table-note b{color:var(--teal)}
+    .table-preview-wrap{border:1px solid var(--ln);border-radius:var(--r);background:var(--bg2);overflow:auto;max-height:400px}
+    .tbl-preview{border-collapse:collapse;width:max-content;min-width:100%;font-family:'Noto Serif KR',serif;font-size:13.5px}
+    .tbl-preview th,.tbl-preview td{border:1px solid var(--bg5);padding:7px 12px;text-align:left;color:var(--tx);white-space:nowrap;vertical-align:top}
+    .tbl-preview thead th{background:var(--bg4);font-weight:500;font-size:11px;color:var(--soft);font-family:'JetBrains Mono',monospace;letter-spacing:.04em}
+    .tbl-preview tr:nth-child(even) td{background:rgba(255,255,255,.02)}
+    .res-stats{display:flex;gap:14px;font-size:11px;color:var(--dim);font-family:'JetBrains Mono',monospace;flex-wrap:wrap}
+    .res-stats b{color:var(--soft)}
+    .notice{display:flex;gap:9px;background:var(--gold2);border:1px solid rgba(200,168,75,.2);border-radius:var(--r);padding:12px 14px;font-size:11.5px;color:var(--soft);line-height:1.65}
+    .notice b{color:var(--gold)}
 
     /* HISTORY */
-    .right { position:sticky; top:58px; max-height:calc(100vh - 78px); background:var(--bg2); border:1px solid var(--ln); border-radius:var(--r2); display:flex; flex-direction:column; overflow:hidden; }
-    .hist-head { display:flex; align-items:center; justify-content:space-between; padding:13px 15px; border-bottom:1px solid var(--ln); flex-shrink:0; }
-    .hist-ht { font-family:'Noto Serif KR',serif; font-size:14px; font-weight:600; display:flex; align-items:center; gap:7px; }
-    .hcount-badge { font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--dim); border:1px solid var(--ln); border-radius:10px; padding:1px 7px; }
-    .btn-clear-all { font-size:11px; color:var(--dim); background:none; border:none; cursor:pointer; font-family:inherit; transition:color .15s; }
-    .btn-clear-all:hover { color:var(--red); }
-    .hist-list { overflow-y:auto; flex:1; padding:8px; display:flex; flex-direction:column; gap:7px; }
-    .hist-empty { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:7px; height:180px; color:var(--dim); font-size:12px; text-align:center; }
-    .hist-empty-icon { font-size:26px; opacity:.3; }
-    .hcard { border:1px solid var(--ln); border-radius:var(--r); background:var(--bg3); overflow:hidden; transition:all .15s; animation:fIn .2s ease; }
-    @keyframes fIn { from{opacity:0;transform:translateY(-4px)} to{opacity:1;transform:translateY(0)} }
-    .hcard:hover { border-color:rgba(255,255,255,.12); }
-    .hcard.open { border-color:rgba(212,80,58,.25); }
-    .hcard-top { display:flex; gap:9px; padding:9px; cursor:pointer; align-items:flex-start; }
-    .hthumb { width:52px; height:38px; flex-shrink:0; border-radius:4px; object-fit:cover; border:1px solid var(--ln); }
-    .hthumb-ph { width:52px; height:38px; flex-shrink:0; border-radius:4px; background:var(--bg4); border:1px solid var(--ln); display:flex; align-items:center; justify-content:center; font-size:16px; opacity:.35; }
-    .hinfo { flex:1; min-width:0; }
-    .hmeta { display:flex; align-items:center; gap:5px; font-size:10px; color:var(--dim); font-family:'JetBrains Mono',monospace; margin-bottom:3px; flex-wrap:wrap; }
-    .hdot { width:5px; height:5px; border-radius:50%; flex-shrink:0; }
-    .htype-badge { font-size:9px; background:var(--teal2); color:var(--teal); border-radius:3px; padding:1px 5px; font-family:'JetBrains Mono',monospace; }
-    .hpreview { font-family:'Noto Serif KR',serif; font-size:12px; color:var(--soft); line-height:1.45; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
-    .hcard-acts { display:flex; gap:4px; padding:0 9px 9px; flex-wrap:wrap; }
-    .hbtn { display:flex; align-items:center; gap:3px; border:1px solid var(--ln); background:var(--bg2); border-radius:5px; padding:4px 9px; font-size:10.5px; color:var(--dim); font-family:inherit; cursor:pointer; transition:all .12s; white-space:nowrap; }
-    .hbtn:hover { color:var(--tx); border-color:var(--ln2); }
-    .hbtn.del:hover { color:var(--red); border-color:rgba(212,80,58,.4); }
-    .hbtn.ok { color:var(--grn); border-color:rgba(90,158,114,.35); }
-    .hbtn.teal { color:var(--teal); border-color:rgba(74,158,175,.35); background:var(--teal2); }
-    .hbody { display:none; padding:0 9px 9px; }
-    .hbody.on { display:block; }
-    .hfull { font-family:'Noto Serif KR',serif; font-size:12.5px; line-height:1.8; color:var(--soft); background:var(--bg2); border:1px solid var(--ln); border-radius:6px; padding:9px 11px; white-space:pre-wrap; word-break:break-all; max-height:180px; overflow-y:auto; user-select:text; cursor:text; }
-    .htbl { overflow-x:auto; max-height:180px; }
-    .htbl table { border-collapse:collapse; font-family:'Noto Serif KR',serif; font-size:12px; color:var(--soft); }
-    .htbl td { border:1px solid var(--bg5); padding:4px 8px; white-space:nowrap; }
+    .right{position:sticky;top:58px;max-height:calc(100vh - 78px);background:var(--bg2);border:1px solid var(--ln);border-radius:var(--r2);display:flex;flex-direction:column;overflow:hidden}
+    .hist-head{display:flex;align-items:center;justify-content:space-between;padding:13px 15px;border-bottom:1px solid var(--ln);flex-shrink:0}
+    .hist-ht{font-family:'Noto Serif KR',serif;font-size:14px;font-weight:600;display:flex;align-items:center;gap:7px}
+    .hcount-badge{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--dim);border:1px solid var(--ln);border-radius:10px;padding:1px 7px}
+    .btn-clear-all{font-size:11px;color:var(--dim);background:none;border:none;cursor:pointer;font-family:inherit;transition:color .15s}
+    .btn-clear-all:hover{color:var(--red)}
+    .hist-list{overflow-y:auto;flex:1;padding:8px;display:flex;flex-direction:column;gap:7px}
+    .hist-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;height:180px;color:var(--dim);font-size:12px;text-align:center}
+    .hist-empty-icon{font-size:26px;opacity:.3}
+    .hcard{border:1px solid var(--ln);border-radius:var(--r);background:var(--bg3);overflow:hidden;transition:all .15s;animation:fIn .2s ease}
+    @keyframes fIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+    .hcard:hover{border-color:rgba(255,255,255,.12)}
+    .hcard.open{border-color:rgba(212,80,58,.25)}
+    .hcard-top{display:flex;gap:9px;padding:9px;cursor:pointer;align-items:flex-start}
+    .hthumb{width:52px;height:38px;flex-shrink:0;border-radius:4px;object-fit:cover;border:1px solid var(--ln)}
+    .hthumb-ph{width:52px;height:38px;flex-shrink:0;border-radius:4px;background:var(--bg4);border:1px solid var(--ln);display:flex;align-items:center;justify-content:center;font-size:16px;opacity:.35}
+    .hinfo{flex:1;min-width:0}
+    .hmeta{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--dim);font-family:'JetBrains Mono',monospace;margin-bottom:3px;flex-wrap:wrap}
+    .hdot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+    .htype-badge{font-size:9px;background:var(--teal2);color:var(--teal);border-radius:3px;padding:1px 5px;font-family:'JetBrains Mono',monospace}
+    .hpreview{font-family:'Noto Serif KR',serif;font-size:12px;color:var(--soft);line-height:1.45;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+    .hcard-acts{display:flex;gap:4px;padding:0 9px 9px;flex-wrap:wrap}
+    .hbtn{display:flex;align-items:center;gap:3px;border:1px solid var(--ln);background:var(--bg2);border-radius:5px;padding:4px 9px;font-size:10.5px;color:var(--dim);font-family:inherit;cursor:pointer;transition:all .12s;white-space:nowrap}
+    .hbtn:hover{color:var(--tx);border-color:var(--ln2)}
+    .hbtn.del:hover{color:var(--red);border-color:rgba(212,80,58,.4)}
+    .hbtn.ok{color:var(--grn);border-color:rgba(90,158,114,.35)}
+    .hbtn.teal{color:var(--teal);border-color:rgba(74,158,175,.35);background:var(--teal2)}
+    .hbody{display:none;padding:0 9px 9px}
+    .hbody.on{display:block}
+    .hfull{font-family:'Noto Serif KR',serif;font-size:12.5px;line-height:1.8;color:var(--soft);background:var(--bg2);border:1px solid var(--ln);border-radius:6px;padding:9px 11px;white-space:pre-wrap;word-break:break-all;max-height:180px;overflow-y:auto;user-select:text;cursor:text}
+    .htbl{overflow-x:auto;max-height:180px}
+    .htbl table{border-collapse:collapse;font-family:'Noto Serif KR',serif;font-size:12px;color:var(--soft)}
+    .htbl td{border:1px solid var(--bg5);padding:4px 8px;white-space:nowrap}
 
-    @media (max-width:780px) {
-      .wrap { grid-template-columns:1fr; }
-      .right { position:static; max-height:55vh; }
-      .hdr-sub { display:none; }
+    @media(max-width:780px){
+      .wrap{grid-template-columns:1fr}
+      .right{position:static;max-height:55vh}
+      .hdr-sub{display:none}
+      .preview-pair.on{grid-template-columns:1fr}
     }
   </style>
 </head>
@@ -194,157 +211,196 @@
 </header>
 
 <div class="wrap">
+<div class="left">
 
-  <!-- LEFT -->
-  <div class="left">
-
-    <!-- 언어 -->
-    <div>
-      <div class="slabel">인식 언어</div>
-      <div class="lang-box">
-        <div class="lang-info">
-          <div class="lang-main">통합 인식 모드</div>
-          <div class="lang-desc">한글·숫자·영문은 항상 포함됩니다. 한자 자형만 선택하세요.</div>
-          <div class="lang-tags">
-            <span class="ltag hi">한글</span>
-            <span class="ltag hi">숫자</span>
-            <span class="ltag hi">영문</span>
-            <span class="ltag" id="hanjaTag">한자 번체</span>
-          </div>
+  <!-- 언어 선택 -->
+  <div>
+    <div class="slabel">인식 언어</div>
+    <div class="lang-box">
+      <div class="lang-info">
+        <div class="lang-main">통합 인식 모드</div>
+        <div class="lang-desc">한글·숫자·영문은 항상 포함됩니다. 한자 자형만 선택하세요.</div>
+        <div class="lang-tags">
+          <span class="ltag hi">한글</span>
+          <span class="ltag hi">숫자</span>
+          <span class="ltag hi">영문</span>
+          <span class="ltag" id="hanjaTag">한자 번체</span>
         </div>
-        <div>
-          <div class="slabel" style="margin-bottom:5px">한자 자형</div>
-          <div class="hanja-toggle">
-            <button class="htbtn active" data-hanja="chi_tra">繁 번체</button>
-            <button class="htbtn" data-hanja="chi_sim">簡 간체</button>
-          </div>
+      </div>
+      <div>
+        <div class="slabel" style="margin-bottom:5px">한자 자형</div>
+        <div class="hanja-toggle">
+          <button class="htbtn active" data-hanja="chi_tra">繁 번체</button>
+          <button class="htbtn" data-hanja="chi_sim">簡 간체</button>
         </div>
       </div>
     </div>
-
-    <!-- 업로드 -->
-    <div class="drop-zone" id="dropZone">
-      <input type="file" id="fileInput" accept="image/*" />
-      <div class="dz-inner" id="dzPrompt">
-        <div class="dz-icon">🖼️</div>
-        <div class="dz-title">이미지 끌어놓기 · 클릭 · Ctrl+V</div>
-        <div class="dz-hint">PNG · JPG · WEBP · BMP · GIF<br><b>모든 처리는 브라우저 안에서만 이루어집니다</b></div>
-      </div>
-      <div id="previewWrap">
-        <img id="previewImg" alt="미리보기" />
-        <div class="prev-meta" id="prevMeta"></div>
-        <button class="btn-resel" id="btnResel">다른 이미지 선택</button>
-      </div>
-    </div>
-
-    <!-- 실행 -->
-    <div class="run-row">
-      <button class="btn-run" id="btnRun" disabled>⚙️ 텍스트 추출</button>
-      <span class="run-st" id="runSt">이미지를 먼저 올려주세요</span>
-    </div>
-
-    <!-- 진행 -->
-    <div class="prog-wrap" id="progWrap">
-      <div class="prog-track"><div class="prog-fill" id="progFill"></div></div>
-      <div class="prog-labels">
-        <span id="progMsg">초기화 중…</span>
-        <span id="progPct">0%</span>
-      </div>
-    </div>
-
-    <!-- 결과 -->
-    <div class="result-wrap" id="resultWrap">
-
-      <div class="mode-tabs" id="modeTabs">
-        <button class="mtab active" data-mode="text">📝 일반 텍스트</button>
-        <button class="mtab" data-mode="table">
-          📊 표 형식 <span class="badge" id="tblBadge" style="display:none">감지됨</span>
-        </button>
-      </div>
-
-      <!-- 텍스트 패널 -->
-      <div class="out-panel on" id="panelText">
-        <div class="res-hdr">
-          <div class="res-title">추출 결과 <span class="cpill" id="confPill"></span></div>
-          <div class="res-btns">
-            <button class="btn-sm" id="btnCopyText">📋 복사</button>
-            <button class="btn-sm" id="btnSaveTxt">💾 기록 저장</button>
-          </div>
-        </div>
-        <textarea class="result-ta" id="resultTa" spellcheck="false"></textarea>
-        <div class="res-stats" id="resStats"></div>
-      </div>
-
-      <!-- 표 패널 -->
-      <div class="out-panel" id="panelTable">
-        <div class="res-hdr">
-          <div class="res-title">표 미리보기</div>
-          <div class="res-btns">
-            <button class="btn-sm teal" id="btnCopyTsv">📋 탭 구분 복사 <small style="font-size:10px;opacity:.75">(한글 붙여넣기용)</small></button>
-            <button class="btn-sm" id="btnCopyCsv">CSV 복사</button>
-            <button class="btn-sm" id="btnSaveTbl">💾 기록 저장</button>
-          </div>
-        </div>
-        <div class="table-note">
-          <span>💡</span>
-          <span>
-            <b>한글(HWP) 표 붙여넣기:</b>
-            "탭 구분 복사" 후 한글에서 표의 첫 번째 셀을 클릭하고 붙여넣기(Ctrl+V).
-            열 수가 맞아야 자동으로 채워집니다.
-          </span>
-        </div>
-        <div class="table-preview-wrap">
-          <table class="tbl-preview" id="tablePreview"></table>
-        </div>
-        <div class="res-stats" id="tblStats"></div>
-      </div>
-
-    </div>
-
-    <!-- 안내 -->
-    <div class="notice">
-      <span>💡</span>
-      <span>
-        <b>처음 실행 시</b> 언어 데이터를 다운로드합니다 (한글 ~5MB, 번체 ~22MB).
-        이후엔 브라우저 캐시로 빠릅니다.
-        <b>표 인식</b>은 줄과 열이 뚜렷한 이미지일수록 정확합니다.
-        숫자·영문은 별도 설정 없이 항상 인식됩니다.
-      </span>
-    </div>
-
   </div>
 
-  <!-- RIGHT: HISTORY -->
-  <div class="right">
-    <div class="hist-head">
-      <div class="hist-ht">변환 기록 <span class="hcount-badge" id="hcountBadge">0</span></div>
-      <button class="btn-clear-all" id="btnClearAll">전체 삭제</button>
-    </div>
-    <div class="hist-list" id="histList">
-      <div class="hist-empty" id="histEmpty">
-        <div class="hist-empty-icon">📂</div>
-        <div>저장된 기록이 없습니다<br>추출 후 <b>기록 저장</b>을 누르세요</div>
+  <!-- 이미지 전처리 -->
+  <div class="prep-box">
+    <div class="prep-head" id="prepHead">
+      <div class="prep-head-left">
+        <div class="prep-head-title">이미지 전처리</div>
+        <span class="prep-badge" id="prepBadge">켜짐</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div class="prep-head-desc" id="prepDesc" style="font-size:11px;color:var(--soft)">업스케일 3× · 이진화 · 선명화</div>
+        <div class="prep-arrow" id="prepArrow">▼</div>
       </div>
     </div>
+    <div class="prep-body" id="prepBody">
+
+      <div>
+        <div class="slabel" style="margin-bottom:6px">전처리 단계 선택</div>
+        <div class="toggle-row">
+          <div class="tog on" data-key="upscale"><div class="dot-ind"></div>업스케일</div>
+          <div class="tog on" data-key="grayscale"><div class="dot-ind"></div>그레이스케일</div>
+          <div class="tog on" data-key="contrast"><div class="dot-ind"></div>대비 강화</div>
+          <div class="tog on" data-key="binarize"><div class="dot-ind"></div>이진화 (흑백)</div>
+          <div class="tog on" data-key="sharpen"><div class="dot-ind"></div>선명화</div>
+        </div>
+      </div>
+
+      <div class="prep-row">
+        <span class="prep-label">업스케일</span>
+        <input type="range" id="slScale" min="1" max="4" step="0.5" value="3" />
+        <span class="prep-val" id="valScale">3×</span>
+      </div>
+      <div class="prep-row">
+        <span class="prep-label">대비</span>
+        <input type="range" id="slContrast" min="1" max="3" step="0.1" value="1.8" />
+        <span class="prep-val" id="valContrast">1.8</span>
+      </div>
+      <div class="prep-row">
+        <span class="prep-label">이진화 임계값</span>
+        <input type="range" id="slThresh" min="0" max="255" step="1" value="0" />
+        <span class="prep-val" id="valThresh">자동</span>
+      </div>
+      <div class="prep-row">
+        <span class="prep-label">선명화 강도</span>
+        <input type="range" id="slSharpen" min="0" max="3" step="0.5" value="1.5" />
+        <span class="prep-val" id="valSharpen">1.5</span>
+      </div>
+
+      <!-- 전처리 미리보기 -->
+      <div class="preview-pair" id="previewPair">
+        <div class="prev-slot">
+          <div class="prev-slot-label">원본</div>
+          <img id="origThumb" alt="원본" />
+        </div>
+        <div class="prev-slot">
+          <div class="prev-slot-label">전처리 후 (Tesseract 입력)</div>
+          <canvas id="procCanvas"></canvas>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 업로드 -->
+  <div class="drop-zone" id="dropZone">
+    <input type="file" id="fileInput" accept="image/*" />
+    <div class="dz-inner" id="dzPrompt">
+      <div class="dz-icon">🖼️</div>
+      <div class="dz-title">이미지 끌어놓기 · 클릭 · Ctrl+V</div>
+      <div class="dz-hint">PNG · JPG · WEBP · BMP · GIF<br><b>모든 처리는 브라우저 안에서만 이루어집니다</b></div>
+    </div>
+    <div id="previewWrap">
+      <img id="previewImg" alt="미리보기" />
+      <div class="prev-meta" id="prevMeta"></div>
+      <button class="btn-resel" id="btnResel">다른 이미지 선택</button>
+    </div>
+  </div>
+
+  <!-- 실행 -->
+  <div class="run-row">
+    <button class="btn-run" id="btnRun" disabled>⚙️ 텍스트 추출</button>
+    <span class="run-st" id="runSt">이미지를 먼저 올려주세요</span>
+  </div>
+
+  <!-- 진행 -->
+  <div class="prog-wrap" id="progWrap">
+    <div class="prog-track"><div class="prog-fill" id="progFill"></div></div>
+    <div class="prog-labels">
+      <span id="progMsg">초기화 중…</span>
+      <span id="progPct">0%</span>
+    </div>
+  </div>
+
+  <!-- 결과 -->
+  <div class="result-wrap" id="resultWrap">
+    <div class="mode-tabs" id="modeTabs">
+      <button class="mtab active" data-mode="text">📝 일반 텍스트</button>
+      <button class="mtab" data-mode="table">📊 표 형식 <span class="badge" id="tblBadge" style="display:none">감지됨</span></button>
+    </div>
+    <div class="out-panel on" id="panelText">
+      <div class="res-hdr">
+        <div class="res-title">추출 결과 <span class="cpill" id="confPill"></span></div>
+        <div class="res-btns">
+          <button class="btn-sm" id="btnCopyText">📋 복사</button>
+          <button class="btn-sm" id="btnSaveTxt">💾 기록 저장</button>
+        </div>
+      </div>
+      <textarea class="result-ta" id="resultTa" spellcheck="false"></textarea>
+      <div class="res-stats" id="resStats"></div>
+    </div>
+    <div class="out-panel" id="panelTable">
+      <div class="res-hdr">
+        <div class="res-title">표 미리보기</div>
+        <div class="res-btns">
+          <button class="btn-sm teal" id="btnCopyTsv">📋 탭 구분 복사 <small style="font-size:10px;opacity:.75">(한글 붙여넣기용)</small></button>
+          <button class="btn-sm" id="btnCopyCsv">CSV 복사</button>
+          <button class="btn-sm" id="btnSaveTbl">💾 기록 저장</button>
+        </div>
+      </div>
+      <div class="table-note"><span>💡</span><span><b>한글(HWP) 표 붙여넣기:</b> "탭 구분 복사" 후 한글에서 표의 첫 번째 셀 클릭 → Ctrl+V. 열 수가 맞아야 자동으로 채워집니다.</span></div>
+      <div class="table-preview-wrap"><table class="tbl-preview" id="tablePreview"></table></div>
+      <div class="res-stats" id="tblStats"></div>
+    </div>
+  </div>
+
+  <div class="notice">
+    <span>💡</span>
+    <span>
+      <b>한자 인식 팁:</b>
+      전처리가 켜진 상태에서 이진화 임계값을 조절하면 인식률이 크게 달라집니다.
+      책 스캔처럼 밝은 배경이면 임계값을 <b>150~180</b>으로 올려보세요.
+      처음 실행 시 언어 데이터 다운로드 (한글 ~5MB, 번체 ~22MB).
+    </span>
   </div>
 
 </div>
 
+<!-- RIGHT: HISTORY -->
+<div class="right">
+  <div class="hist-head">
+    <div class="hist-ht">변환 기록 <span class="hcount-badge" id="hcountBadge">0</span></div>
+    <button class="btn-clear-all" id="btnClearAll">전체 삭제</button>
+  </div>
+  <div class="hist-list" id="histList">
+    <div class="hist-empty" id="histEmpty">
+      <div class="hist-empty-icon">📂</div>
+      <div>저장된 기록이 없습니다<br>추출 후 <b>기록 저장</b>을 누르세요</div>
+    </div>
+  </div>
+</div>
+</div>
+
 <script>
 (function () {
-  const STORE = 'hanOcrHistory_v3';
-  let imageFile = null, hanjaMode = 'chi_tra', isRunning = false;
-  let ocr = null, tableData = null, currentMode = 'text';
+  const STORE = 'hanOcrHistory_v4';
+  let imageFile = null, origImg = null, hanjaMode = 'chi_tra', isRunning = false;
+  let ocr = null, tableData = null;
+
+  /* 전처리 설정 */
+  const prep = {
+    upscale: true, grayscale: true, contrast: true,
+    binarize: true, sharpen: true,
+    scale: 3, contrastVal: 1.8, threshold: 0, sharpenVal: 1.5
+  };
 
   const $ = id => document.getElementById(id);
-  const dropZone = $('dropZone'), fileInput = $('fileInput'), dzPrompt = $('dzPrompt');
-  const previewWrap = $('previewWrap'), previewImg = $('previewImg'), prevMeta = $('prevMeta');
-  const btnResel = $('btnResel'), btnRun = $('btnRun'), runSt = $('runSt');
-  const progWrap = $('progWrap'), progFill = $('progFill'), progMsg = $('progMsg'), progPct = $('progPct');
-  const resultWrap = $('resultWrap'), resultTa = $('resultTa'), confPill = $('confPill');
-  const resStats = $('resStats'), tablePreview = $('tablePreview'), tblStats = $('tblStats');
-  const tblBadge = $('tblBadge'), panelText = $('panelText'), panelTable = $('panelTable');
-  const histList = $('histList'), hcountBadge = $('hcountBadge'), histEmpty = $('histEmpty');
 
   /* ── 한자 토글 ── */
   document.querySelectorAll('.htbtn').forEach(btn => btn.addEventListener('click', () => {
@@ -354,13 +410,79 @@
     $('hanjaTag').textContent = hanjaMode === 'chi_tra' ? '한자 번체' : '한자 간체';
   }));
 
-  /* ── 업로드 ── */
-  dropZone.addEventListener('click', e => {
-    if (e.target === btnResel || isRunning) return;
-    if (!dropZone.classList.contains('filled')) fileInput.click();
+  /* ── 전처리 패널 ── */
+  $('prepHead').addEventListener('click', () => {
+    const body = $('prepBody'), arrow = $('prepArrow');
+    const open = body.classList.toggle('closed');
+    arrow.classList.toggle('open', !open);
+    // closed means hidden
+    body.style.display = body.classList.contains('closed') ? 'none' : 'flex';
   });
-  btnResel.addEventListener('click', e => { e.stopPropagation(); fileInput.click(); });
-  fileInput.addEventListener('change', () => { if (fileInput.files[0]) loadFile(fileInput.files[0]); });
+  // Init: open by default
+  $('prepBody').style.display = 'flex';
+  $('prepArrow').classList.add('open');
+
+  document.querySelectorAll('.tog').forEach(tog => {
+    tog.addEventListener('click', () => {
+      const key = tog.dataset.key;
+      prep[key] = !prep[key];
+      tog.classList.toggle('on', prep[key]);
+      tog.querySelector('.dot-ind').style.background = prep[key] ? 'var(--grn)' : 'var(--dim)';
+      updatePrepDesc();
+      if (origImg) updateProcPreview();
+    });
+  });
+
+  function slider(id, valId, min, max, fmt) {
+    const el = $(id), vel = $(valId);
+    el.addEventListener('input', () => {
+      const v = parseFloat(el.value);
+      vel.textContent = fmt(v);
+      return v;
+    });
+  }
+
+  $('slScale').addEventListener('input', function() {
+    prep.scale = parseFloat(this.value);
+    $('valScale').textContent = prep.scale + '×';
+    updatePrepDesc();
+    if (origImg) updateProcPreview();
+  });
+  $('slContrast').addEventListener('input', function() {
+    prep.contrastVal = parseFloat(this.value);
+    $('valContrast').textContent = prep.contrastVal.toFixed(1);
+    if (origImg) updateProcPreview();
+  });
+  $('slThresh').addEventListener('input', function() {
+    prep.threshold = parseInt(this.value);
+    $('valThresh').textContent = prep.threshold === 0 ? '자동' : prep.threshold;
+    if (origImg) updateProcPreview();
+  });
+  $('slSharpen').addEventListener('input', function() {
+    prep.sharpenVal = parseFloat(this.value);
+    $('valSharpen').textContent = prep.sharpenVal.toFixed(1);
+    if (origImg) updateProcPreview();
+  });
+
+  function updatePrepDesc() {
+    const parts = [];
+    if (prep.upscale) parts.push(`업스케일 ${prep.scale}×`);
+    if (prep.binarize) parts.push('이진화');
+    if (prep.sharpen) parts.push('선명화');
+    $('prepDesc').textContent = parts.length ? parts.join(' · ') : '비활성';
+    const anyOn = prep.upscale || prep.grayscale || prep.contrast || prep.binarize || prep.sharpen;
+    $('prepBadge').textContent = anyOn ? '켜짐' : '꺼짐';
+    $('prepBadge').className = 'prep-badge' + (anyOn ? '' : ' off');
+  }
+
+  /* ── 업로드 ── */
+  const dropZone = $('dropZone');
+  dropZone.addEventListener('click', e => {
+    if (e.target === $('btnResel') || isRunning) return;
+    if (!dropZone.classList.contains('filled')) $('fileInput').click();
+  });
+  $('btnResel').addEventListener('click', e => { e.stopPropagation(); $('fileInput').click(); });
+  $('fileInput').addEventListener('change', () => { if ($('fileInput').files[0]) loadFile($('fileInput').files[0]); });
   dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
   dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
   dropZone.addEventListener('drop', e => {
@@ -376,78 +498,231 @@
 
   function loadFile(f) {
     imageFile = f;
-    previewImg.src = URL.createObjectURL(f);
-    prevMeta.textContent = `${f.name}  ·  ${(f.size/1024).toFixed(1)} KB`;
-    dzPrompt.style.display = 'none';
-    previewWrap.classList.add('on');
+    const url = URL.createObjectURL(f);
+    $('previewImg').src = url;
+    $('prevMeta').textContent = `${f.name}  ·  ${(f.size/1024).toFixed(1)} KB`;
+    $('dzPrompt').style.display = 'none';
+    $('previewWrap').classList.add('on');
     dropZone.classList.add('filled');
-    btnRun.disabled = false;
-    runSt.textContent = '준비 완료 — 버튼을 눌러 시작하세요';
-    resultWrap.classList.remove('on');
-    progWrap.classList.remove('on');
+    $('btnRun').disabled = false;
+    $('runSt').textContent = '준비 완료 — 버튼을 눌러 시작하세요';
+    $('resultWrap').classList.remove('on');
+    $('progWrap').classList.remove('on');
     ocr = null; tableData = null;
+
+    // 전처리 미리보기 로드
+    const img = new Image();
+    img.onload = () => {
+      origImg = img;
+      $('origThumb').src = url;
+      $('previewPair').classList.add('on');
+      updateProcPreview();
+    };
+    img.src = url;
   }
 
-  /* ── OCR ── */
-  btnRun.addEventListener('click', async () => {
+  /* ══════════════════════════════════════════
+     ① Otsu 자동 임계값 계산
+  ══════════════════════════════════════════ */
+  function otsuThreshold(grayData, total) {
+    const hist = new Array(256).fill(0);
+    for (let i = 0; i < total; i++) hist[grayData[i]]++;
+    let sum = 0;
+    for (let i = 0; i < 256; i++) sum += i * hist[i];
+    let sumB = 0, wB = 0, max = 0, thresh = 128;
+    for (let t = 0; t < 256; t++) {
+      wB += hist[t]; if (!wB) continue;
+      const wF = total - wB; if (!wF) break;
+      sumB += t * hist[t];
+      const mB = sumB / wB, mF = (sum - sumB) / wF;
+      const between = wB * wF * (mB - mF) ** 2;
+      if (between > max) { max = between; thresh = t; }
+    }
+    return thresh;
+  }
+
+  /* ══════════════════════════════════════════
+     ② 3×3 컨볼루션 (선명화 커널)
+  ══════════════════════════════════════════ */
+  function applyConvolution(data, w, h, kernel, factor) {
+    const output = new Uint8ClampedArray(data.length);
+    for (let y = 1; y < h - 1; y++) {
+      for (let x = 1; x < w - 1; x++) {
+        for (let c = 0; c < 3; c++) {
+          let sum = 0;
+          for (let ky = -1; ky <= 1; ky++) {
+            for (let kx = -1; kx <= 1; kx++) {
+              const idx = ((y + ky) * w + (x + kx)) * 4 + c;
+              sum += data[idx] * kernel[(ky + 1) * 3 + (kx + 1)];
+            }
+          }
+          output[(y * w + x) * 4 + c] = Math.min(255, Math.max(0, sum * factor));
+        }
+        output[(y * w + x) * 4 + 3] = 255;
+      }
+    }
+    // 테두리 복사
+    for (let y = 0; y < h; y++)
+      for (let x = 0; x < w; x++) {
+        if (y === 0 || y === h-1 || x === 0 || x === w-1) {
+          const idx = (y * w + x) * 4;
+          output[idx] = data[idx]; output[idx+1] = data[idx+1];
+          output[idx+2] = data[idx+2]; output[idx+3] = 255;
+        }
+      }
+    return output;
+  }
+
+  /* ══════════════════════════════════════════
+     ③ 메인 전처리 함수
+     → 처리된 canvas를 반환
+  ══════════════════════════════════════════ */
+  function preprocessImage(img) {
+    const scale = prep.upscale ? prep.scale : 1;
+    const W = Math.round(img.naturalWidth * scale);
+    const H = Math.round(img.naturalHeight * scale);
+
+    const canvas = document.createElement('canvas');
+    canvas.width = W; canvas.height = H;
+    const ctx = canvas.getContext('2d');
+
+    // 업스케일 그리기
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(img, 0, 0, W, H);
+
+    const imgData = ctx.getImageData(0, 0, W, H);
+    const d = imgData.data;
+    const total = W * H;
+
+    // ① 그레이스케일
+    const gray = new Uint8Array(total);
+    for (let i = 0; i < total; i++) {
+      const idx = i * 4;
+      gray[i] = prep.grayscale
+        ? Math.round(0.299 * d[idx] + 0.587 * d[idx+1] + 0.114 * d[idx+2])
+        : Math.round((d[idx] + d[idx+1] + d[idx+2]) / 3);
+    }
+
+    // ② 대비 강화 (그레이 기준)
+    if (prep.contrast) {
+      const c = prep.contrastVal;
+      for (let i = 0; i < total; i++) {
+        gray[i] = Math.min(255, Math.max(0, Math.round((gray[i] - 128) * c + 128)));
+      }
+    }
+
+    // ③ 이진화 (Otsu 또는 수동)
+    if (prep.binarize) {
+      const thresh = prep.threshold === 0 ? otsuThreshold(gray, total) : prep.threshold;
+      for (let i = 0; i < total; i++) {
+        gray[i] = gray[i] >= thresh ? 255 : 0;
+      }
+    }
+
+    // gray → RGBA 다시 쓰기
+    for (let i = 0; i < total; i++) {
+      const idx = i * 4;
+      d[idx] = d[idx+1] = d[idx+2] = gray[i]; d[idx+3] = 255;
+    }
+
+    // ④ 선명화 (이진화 후에는 효과 없지만 비이진화 모드에서 유효)
+    if (prep.sharpen && !prep.binarize) {
+      const s = prep.sharpenVal;
+      const kern = [0,-s,0,-s,4*s+1,-s,0,-s,0];
+      const sharpData = applyConvolution(d, W, H, kern, 1);
+      for (let i = 0; i < d.length; i++) d[i] = sharpData[i];
+    }
+
+    ctx.putImageData(imgData, 0, 0);
+    return canvas;
+  }
+
+  /* 전처리 미리보기 업데이트 */
+  function updateProcPreview() {
+    if (!origImg) return;
+    const processed = preprocessImage(origImg);
+    const preview = $('procCanvas');
+    const maxW = 400;
+    const scale = Math.min(1, maxW / processed.width);
+    preview.width = Math.round(processed.width * scale);
+    preview.height = Math.round(processed.height * scale);
+    preview.getContext('2d').drawImage(processed, 0, 0, preview.width, preview.height);
+  }
+
+  /* ── OCR 실행 ── */
+  $('btnRun').addEventListener('click', async () => {
     if (!imageFile || isRunning) return;
-    isRunning = true; btnRun.disabled = true;
-    runSt.textContent = '처리 중…';
-    progWrap.classList.add('on'); resultWrap.classList.remove('on');
-    setProg(0, '엔진 로드 중…');
+    isRunning = true; $('btnRun').disabled = true;
+    $('runSt').textContent = '처리 중…';
+    $('progWrap').classList.add('on'); $('resultWrap').classList.remove('on');
+    setProg(0, '이미지 전처리 중…');
 
     const lang = `kor+${hanjaMode}+eng`;
+
     try {
-      const result = await Tesseract.recognize(imageFile, lang, { logger: onLog });
+      // 전처리된 캔버스를 Blob으로 변환해 Tesseract에 전달
+      let input;
+      if (origImg) {
+        setProg(3, '이미지 전처리 적용 중…');
+        const processedCanvas = preprocessImage(origImg);
+        input = await new Promise(res => processedCanvas.toBlob(res, 'image/png'));
+      } else {
+        input = imageFile;
+      }
+
+      setProg(8, '엔진 로드 중…');
+      const result = await Tesseract.recognize(input, lang, { logger: onLog });
+
       const text  = result.data.text.trim();
       const conf  = Math.round(result.data.confidence);
       const words = result.data.words || [];
 
       ocr = { text, conf, words, lang };
 
-      resultTa.value = text;
-      confPill.textContent = `신뢰도 ${conf}%`;
-      confPill.className = 'cpill ' + cc(conf);
+      $('resultTa').value = text;
+      $('confPill').textContent = `신뢰도 ${conf}%`;
+      $('confPill').className = 'cpill ' + cc(conf);
       const chars = text.replace(/\s/g,'').length;
-      const lines = text.split('\n').filter(l => l.trim()).length;
-      resStats.innerHTML =
+      const lines = text.split('\n').filter(l=>l.trim()).length;
+      $('resStats').innerHTML =
         `<span>글자 <b>${chars.toLocaleString()}</b></span>` +
         `<span>줄 <b>${lines}</b></span>` +
         `<span>신뢰도 <b>${conf}%</b></span>` +
-        `<span>언어 <b>${langLabel(lang)}</b></span>`;
+        `<span>언어 <b>${lang.includes('chi_tra')?'한·번체·英':'한·간체·英'}</b></span>`;
 
       tableData = detectTable(words);
       if (tableData) {
         renderTablePreview(tableData);
-        tblBadge.style.display = '';
-        tblStats.innerHTML = `<span>행 <b>${tableData.length}</b></span><span>열 <b>${tableData[0]?.length||0}</b></span>`;
-      } else { tblBadge.style.display = 'none'; }
+        $('tblBadge').style.display = '';
+        $('tblStats').innerHTML = `<span>행 <b>${tableData.length}</b></span><span>열 <b>${tableData[0]?.length||0}</b></span>`;
+      } else { $('tblBadge').style.display = 'none'; }
 
-      resultWrap.classList.add('on');
+      $('resultWrap').classList.add('on');
       setProg(100, '완료!');
-      runSt.textContent = `추출 완료 (신뢰도 ${conf}%)`;
+      $('runSt').textContent = `추출 완료 (신뢰도 ${conf}%)`;
       switchMode(tableData && tableData.length >= 2 ? 'table' : 'text');
     } catch (err) {
-      runSt.textContent = '오류: ' + err.message;
+      $('runSt').textContent = '오류: ' + err.message;
       setProg(0, '오류'); console.error(err);
-    } finally { isRunning = false; btnRun.disabled = false; }
+    } finally { isRunning = false; $('btnRun').disabled = false; }
   });
 
   function onLog(m) {
     const s = m.status;
-    if (s === 'recognizing text') setProg(Math.round(40 + m.progress*58), `인식 중… ${Math.round(m.progress*100)}%`);
-    else if (s === 'loading tesseract core') setProg(5, 'Tesseract 코어 로드 중…');
-    else if (s === 'initializing tesseract') setProg(12, '엔진 초기화 중…');
-    else if (s === 'loading language traineddata') setProg(22, '언어 데이터 다운로드 중…');
-    else if (s === 'initializing api') setProg(38, 'API 초기화 중…');
+    if (s === 'recognizing text') setProg(Math.round(45 + m.progress * 52), `인식 중… ${Math.round(m.progress*100)}%`);
+    else if (s === 'loading tesseract core') setProg(10, 'Tesseract 코어 로드 중…');
+    else if (s === 'initializing tesseract') setProg(18, '엔진 초기화 중…');
+    else if (s === 'loading language traineddata') setProg(26, '언어 데이터 다운로드 중…');
+    else if (s === 'initializing api') setProg(42, 'API 초기화 중…');
   }
 
-  function setProg(p, msg) { progFill.style.width=p+'%'; progMsg.textContent=msg; progPct.textContent=p+'%'; }
-  function cc(c) { return c>=70?'ch':c>=40?'cm':'cl'; }
-  function langLabel(l) {
-    if (l.includes('chi_tra')) return '한·번체·英';
-    return '한·간체·英';
+  function setProg(p, msg) {
+    $('progFill').style.width = p + '%';
+    $('progMsg').textContent = msg;
+    $('progPct').textContent = p + '%';
   }
+  function cc(c) { return c >= 70 ? 'ch' : c >= 40 ? 'cm' : 'cl'; }
 
   /* ── 모드 탭 ── */
   $('modeTabs').addEventListener('click', e => {
@@ -455,27 +730,18 @@
     if (btn) switchMode(btn.dataset.mode);
   });
   function switchMode(mode) {
-    currentMode = mode;
-    document.querySelectorAll('.mtab').forEach(b => b.classList.toggle('active', b.dataset.mode===mode));
-    panelText.classList.toggle('on', mode==='text');
-    panelTable.classList.toggle('on', mode==='table');
+    document.querySelectorAll('.mtab').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
+    $('panelText').classList.toggle('on', mode === 'text');
+    $('panelTable').classList.toggle('on', mode === 'table');
   }
 
-  /* ══════════════════════════════════════
-     표 감지 알고리즘
-     ① word bounding box로 행 클러스터링
-     ② X축 분포로 열 수 추정
-     ③ 각 단어를 가장 가까운 열에 배정
-  ══════════════════════════════════════ */
+  /* ── 표 감지 ── */
   function detectTable(words) {
     if (!words || words.length < 6) return null;
     const ws = words.filter(w => w.confidence > 15 && w.text.trim());
     if (ws.length < 6) return null;
-
     const medH = median(ws.map(w => w.bbox.y1 - w.bbox.y0));
     const rowGap = medH * 0.7;
-
-    /* 행 클러스터링 */
     const rows = [];
     for (const w of [...ws].sort((a,b) => a.bbox.y0 - b.bbox.y0)) {
       const cy = (w.bbox.y0 + w.bbox.y1) / 2;
@@ -490,63 +756,34 @@
       if (!found) rows.push({ cy, ws: [w] });
     }
     rows.forEach(r => r.ws.sort((a,b) => a.bbox.x0 - b.bbox.x0));
-
-    /* 표 여부 판단 */
     const multiRows = rows.filter(r => r.ws.length >= 2).length;
     if (rows.length < 2 || multiRows < Math.max(2, rows.length * 0.4)) return null;
-
-    /* 열 수: 가장 많이 등장한 단어 수 */
-    const colCounts = rows.map(r => r.ws.length);
-    const colCount = mode_of(colCounts);
+    const colCount = modeOf(rows.map(r => r.ws.length));
     if (colCount < 2) return null;
-
-    /* X 범위로 열 경계 설정 */
     const allCx = ws.map(w => (w.bbox.x0+w.bbox.x1)/2);
     const xMin = Math.min(...allCx), xMax = Math.max(...allCx);
     const colW = (xMax - xMin + 1) / colCount;
-
-    /* 각 행 → colCount 셀 배열 */
-    const grid = rows.map(row => {
+    return rows.map(row => {
       const cells = Array(colCount).fill('');
       for (const w of row.ws) {
-        const cx = (w.bbox.x0 + w.bbox.x1) / 2;
-        const ci = Math.min(colCount-1, Math.floor((cx - xMin) / colW));
+        const ci = Math.min(colCount-1, Math.floor(((w.bbox.x0+w.bbox.x1)/2 - xMin) / colW));
         cells[ci] = (cells[ci] ? cells[ci]+' ' : '') + w.text;
       }
       return cells;
     });
-
-    return grid;
   }
+  function median(arr) { const s=[...arr].sort((a,b)=>a-b); return s[Math.floor(s.length/2)]||20; }
+  function modeOf(arr) { const f={}; arr.forEach(v=>f[v]=(f[v]||0)+1); return +Object.keys(f).sort((a,b)=>f[b]-f[a])[0]; }
 
-  function median(arr) {
-    const s = [...arr].sort((a,b)=>a-b);
-    return s[Math.floor(s.length/2)] || 20;
-  }
-  function mode_of(arr) {
-    const freq = {};
-    arr.forEach(v => freq[v] = (freq[v]||0)+1);
-    return +Object.keys(freq).sort((a,b)=>freq[b]-freq[a])[0];
-  }
-
-  /* 표 렌더 */
   function renderTablePreview(grid) {
     if (!grid?.length) return;
     const thead = document.createElement('thead');
     const hr = document.createElement('tr');
-    for (let i=0;i<grid[0].length;i++) {
-      const th = document.createElement('th'); th.textContent=`열 ${i+1}`; hr.appendChild(th);
-    }
+    for (let i=0;i<grid[0].length;i++) { const th=document.createElement('th'); th.textContent=`열 ${i+1}`; hr.appendChild(th); }
     thead.appendChild(hr);
     const tbody = document.createElement('tbody');
-    grid.forEach(row => {
-      const tr = document.createElement('tr');
-      row.forEach(c => { const td=document.createElement('td'); td.textContent=c; tr.appendChild(td); });
-      tbody.appendChild(tr);
-    });
-    tablePreview.innerHTML='';
-    tablePreview.appendChild(thead);
-    tablePreview.appendChild(tbody);
+    grid.forEach(row => { const tr=document.createElement('tr'); row.forEach(c=>{const td=document.createElement('td');td.textContent=c;tr.appendChild(td);}); tbody.appendChild(tr); });
+    $('tablePreview').innerHTML=''; $('tablePreview').appendChild(thead); $('tablePreview').appendChild(tbody);
   }
 
   /* ── 복사 ── */
@@ -557,8 +794,7 @@
     btn.textContent='✅ 복사됨'; btn.classList.add('ok');
     setTimeout(()=>{ btn.innerHTML=orig; btn.classList.remove('ok'); }, 2000);
   }
-
-  $('btnCopyText').addEventListener('click', e => copyStr(resultTa.value, e.currentTarget));
+  $('btnCopyText').addEventListener('click', e => copyStr($('resultTa').value, e.currentTarget));
   $('btnCopyTsv').addEventListener('click', e => {
     if (tableData) copyStr(tableData.map(r=>r.join('\t')).join('\n'), e.currentTarget);
   });
@@ -570,14 +806,11 @@
   async function saveEntry(type) {
     if (!ocr || !imageFile) return;
     const thumb = await makeThumbnail(imageFile);
-    const entry = {
-      id: Date.now(), at: new Date().toISOString(),
-      text: ocr.text, tableData: type==='table' ? tableData : null,
-      type, conf: ocr.conf, lang: ocr.lang, fileName: imageFile.name, thumb,
-    };
+    const entry = { id:Date.now(), at:new Date().toISOString(), text:ocr.text,
+      tableData:type==='table'?tableData:null, type, conf:ocr.conf, lang:ocr.lang,
+      fileName:imageFile.name, thumb };
     const h = loadHist(); h.unshift(entry); saveHist(h); renderHist();
   }
-
   $('btnSaveTxt').addEventListener('click', async function() {
     await saveEntry('text'); this.textContent='✅ 저장됨';
     setTimeout(()=>this.textContent='💾 기록 저장', 1800);
@@ -587,7 +820,6 @@
     setTimeout(()=>this.textContent='💾 기록 저장', 1800);
   });
 
-  /* 썸네일 */
   function makeThumbnail(file) {
     return new Promise(res => {
       const img=new Image(), url=URL.createObjectURL(file);
@@ -602,19 +834,15 @@
     });
   }
 
-  /* localStorage */
   function loadHist() { try{return JSON.parse(localStorage.getItem(STORE)||'[]');}catch{return[];} }
   function saveHist(h) { try{localStorage.setItem(STORE,JSON.stringify(h.slice(0,50)));}catch{try{localStorage.setItem(STORE,JSON.stringify(h.slice(0,20)));}catch{}} }
   function delEntry(id) { saveHist(loadHist().filter(e=>e.id!==id)); renderHist(); }
 
-  /* ── 기록 렌더 ── */
   function renderHist() {
-    const h = loadHist();
-    hcountBadge.textContent = h.length;
-    if (!h.length) { histList.innerHTML=''; histList.appendChild(histEmpty); histEmpty.style.display=''; return; }
-    histEmpty.style.display='none';
-    histList.innerHTML='';
-    h.forEach(e => histList.appendChild(makeCard(e)));
+    const h = loadHist(); $('hcountBadge').textContent = h.length;
+    if (!h.length) { $('histList').innerHTML=''; $('histList').appendChild($('histEmpty')); $('histEmpty').style.display=''; return; }
+    $('histEmpty').style.display='none'; $('histList').innerHTML='';
+    h.forEach(e => $('histList').appendChild(makeCard(e)));
   }
 
   function makeCard(e) {
@@ -623,9 +851,7 @@
     const dotC = e.conf>=70?'#5a9e72':e.conf>=40?'#c8a84b':'#d4503a';
     const isTable = e.type==='table' && e.tableData;
     const prev = e.text.slice(0,70).replace(/\n/g,' ');
-
-    const card = document.createElement('div');
-    card.className = 'hcard';
+    const card = document.createElement('div'); card.className = 'hcard';
     card.innerHTML = `
       <div class="hcard-top">
         ${e.thumb?`<img class="hthumb" src="${e.thumb}" />`:`<div class="hthumb-ph">🖼️</div>`}
@@ -646,29 +872,24 @@
         <button class="hbtn del btn-del">🗑️</button>
       </div>
       <div class="hbody">
-        ${isTable ? renderMiniTbl(e.tableData) : `<div class="hfull">${esc(e.text)}</div>`}
+        ${isTable?renderMiniTbl(e.tableData):`<div class="hfull">${esc(e.text)}</div>`}
       </div>`;
-
     card.querySelector('.btn-exp').addEventListener('click', ev => {
       ev.stopPropagation();
       const b=ev.currentTarget, body=card.querySelector('.hbody');
       const open=body.classList.toggle('on');
-      b.textContent=open?'▲ 접기':'▼ 펼치기';
-      card.classList.toggle('open',open);
+      b.textContent=open?'▲ 접기':'▼ 펼치기'; card.classList.toggle('open',open);
     });
     card.querySelector('.btn-cpt').addEventListener('click', ev => { ev.stopPropagation(); copyStr(e.text, ev.currentTarget); });
-    const tsvBtn=card.querySelector('.btn-tsv');
-    if(tsvBtn) tsvBtn.addEventListener('click', ev => {
-      ev.stopPropagation();
-      copyStr(e.tableData.map(r=>r.join('\t')).join('\n'), ev.currentTarget);
-    });
+    const tv=card.querySelector('.btn-tsv');
+    if(tv) tv.addEventListener('click', ev => { ev.stopPropagation(); copyStr(e.tableData.map(r=>r.join('\t')).join('\n'), ev.currentTarget); });
     card.querySelector('.btn-load').addEventListener('click', ev => {
       ev.stopPropagation();
-      resultTa.value=e.text;
-      confPill.textContent=`신뢰도 ${e.conf}%`; confPill.className='cpill '+cc(e.conf);
-      resStats.innerHTML=`<span>글자 <b>${e.text.replace(/\s/g,'').length.toLocaleString()}</b></span>`;
-      if(e.tableData){ tableData=e.tableData; renderTablePreview(e.tableData); tblBadge.style.display=''; }
-      resultWrap.classList.add('on');
+      $('resultTa').value=e.text;
+      $('confPill').textContent=`신뢰도 ${e.conf}%`; $('confPill').className='cpill '+cc(e.conf);
+      $('resStats').innerHTML=`<span>글자 <b>${e.text.replace(/\s/g,'').length.toLocaleString()}</b></span>`;
+      if(e.tableData){tableData=e.tableData;renderTablePreview(e.tableData);$('tblBadge').style.display='';}
+      $('resultWrap').classList.add('on');
       switchMode(e.tableData?'table':'text');
       window.scrollTo({top:0,behavior:'smooth'});
     });
@@ -682,8 +903,7 @@
 
   function renderMiniTbl(grid) {
     if(!grid?.length) return '';
-    const rows=grid.map(r=>`<tr>${r.map(c=>`<td>${esc(c)}</td>`).join('')}</tr>`).join('');
-    return `<div class="htbl"><table>${rows}</table></div>`;
+    return `<div class="htbl"><table>${grid.map(r=>`<tr>${r.map(c=>`<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</table></div>`;
   }
   function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
