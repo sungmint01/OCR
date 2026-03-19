@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>漢·한 OCR — 통합 이미지 텍스트 변환</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;600;700&family=Noto+Sans+KR:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+  <style>
+    :root {
+      --bg:    #0f0e0c;
+      --bg2:   #181610;
+      --bg3:   #211f18;
+      --bg4:   #2b2820;
+      --bg5:   #353028;
+      --ln:    rgba(255,255,255,0.07);
+      --ln2:   rgba(255,255,255,0.12);
+      --tx:    #ede5d8;
+      --soft:  #a8967e;
+      --dim:   #665a48;
+      --red:   #d4503a;
+      --red2:  rgba(212,80,58,0.14);
+      --gold:  #c8a84b;
+      --gold2: rgba(200,168,75,0.11);
+      --grn:   #5a9e72;
+      --grn2:  rgba(90,158,114,0.11);
+      --teal:  #4a9eaf;
+      --teal2: rgba(74,158,175,0.11);
+      --r: 8px; --r2: 12px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Noto Sans KR', sans-serif; background: var(--bg); color: var(--tx); min-height: 100vh; display: flex; flex-direction: column; }
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-thumb { background: var(--bg5); border-radius: 4px; }
+
+    /* HEADER */
+    header { position: sticky; top: 0; z-index: 300; background: rgba(15,14,12,0.94); backdrop-filter: blur(14px); border-bottom: 1px solid var(--ln); }
+    .hdr { max-width: 1120px; margin: 0 auto; padding: 13px 24px; display: flex; align-items: center; gap: 12px; }
+    .logo { font-family: 'Noto Serif KR', serif; font-size: 19px; font-weight: 700; letter-spacing: 0.03em; }
+    .logo .dot { color: var(--red); }
+    .hdr-div { width: 1px; height: 16px; background: var(--ln2); margin: 0 4px; }
+    .hdr-sub { font-size: 11px; color: var(--dim); font-weight: 300; letter-spacing: 0.05em; }
+    .hdr-r { margin-left: auto; display: flex; align-items: center; gap: 6px; }
+    .pill { font-size: 10px; font-family: 'JetBrains Mono', monospace; color: var(--dim); border: 1px solid var(--ln); border-radius: 20px; padding: 3px 9px; }
+    .pill.g { color: var(--grn); border-color: rgba(90,158,114,0.3); }
+
+    /* LAYOUT */
+    .wrap { max-width: 1120px; margin: 0 auto; padding: 28px 24px 80px; width: 100%; display: grid; grid-template-columns: 1fr 370px; gap: 22px; align-items: start; }
+    .left { display: flex; flex-direction: column; gap: 18px; }
+    .slabel { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--dim); font-weight: 500; font-family: 'JetBrains Mono', monospace; margin-bottom: 8px; }
+
+    /* LANG BOX */
+    .lang-box { background: var(--bg2); border: 1px solid var(--ln); border-radius: var(--r2); padding: 14px 16px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+    .lang-info { flex: 1; min-width: 200px; }
+    .lang-main { font-family: 'Noto Serif KR', serif; font-size: 14px; font-weight: 600; margin-bottom: 3px; }
+    .lang-desc { font-size: 11px; color: var(--soft); line-height: 1.5; }
+    .lang-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 6px; }
+    .ltag { font-size: 10px; font-family: 'JetBrains Mono', monospace; border: 1px solid var(--ln2); border-radius: 4px; padding: 2px 7px; color: var(--soft); }
+    .ltag.hi { color: var(--gold); border-color: rgba(200,168,75,0.3); background: var(--gold2); }
+    .hanja-toggle { display: flex; border: 1px solid var(--ln2); border-radius: 6px; overflow: hidden; }
+    .htbtn { padding: 6px 14px; font-size: 12px; font-family: 'Noto Sans KR', sans-serif; border: none; cursor: pointer; transition: all 0.15s; background: transparent; color: var(--soft); }
+    .htbtn.active { background: var(--bg5); color: var(--tx); }
+    .htbtn:first-child { border-right: 1px solid var(--ln2); }
+
+    /* DROP ZONE */
+    .drop-zone { border: 1px dashed rgba(255,255,255,0.1); border-radius: var(--r2); min-height: 170px; background: var(--bg2); cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+    .drop-zone::before { content:''; position:absolute; inset:0; background:radial-gradient(ellipse at 50% 0%,rgba(212,80,58,.05) 0%,transparent 55%); pointer-events:none; }
+    .drop-zone:hover, .drop-zone.drag-over { border-color: var(--red); background: rgba(212,80,58,.03); }
+    .drop-zone.filled { padding: 16px; cursor: default; border-style: solid; border-color: var(--bg5); align-items: flex-start; }
+    .dz-inner { display:flex; flex-direction:column; align-items:center; gap:7px; padding:28px 20px; }
+    .dz-icon { font-size:32px; opacity:.35; }
+    .dz-title { font-family:'Noto Serif KR',serif; font-size:15px; color:var(--tx); }
+    .dz-hint { font-size:11.5px; color:var(--dim); line-height:1.65; text-align:center; }
+    .dz-hint b { color:var(--gold); font-weight:500; }
+    #fileInput { display:none; }
+    #previewWrap { display:none; flex-direction:column; align-items:center; gap:8px; width:100%; }
+    #previewWrap.on { display:flex; }
+    #previewImg { max-width:100%; max-height:260px; object-fit:contain; border-radius:6px; }
+    .prev-meta { font-size:11px; color:var(--dim); font-family:'JetBrains Mono',monospace; }
+    .btn-resel { font-size:11.5px; color:var(--red); background:none; border:none; cursor:pointer; font-family:inherit; text-decoration:underline; text-underline-offset:2px; }
+
+    /* RUN */
+    .run-row { display:flex; align-items:center; gap:12px; }
+    .btn-run { display:flex; align-items:center; gap:7px; background:var(--red); color:#fff; border:none; border-radius:var(--r); padding:11px 22px; font-size:13.5px; font-family:'Noto Sans KR',sans-serif; font-weight:500; cursor:pointer; transition:all 0.15s; }
+    .btn-run:hover:not(:disabled) { background:#e05a44; transform:translateY(-1px); box-shadow:0 5px 18px rgba(212,80,58,.35); }
+    .btn-run:disabled { opacity:.35; cursor:not-allowed; transform:none; box-shadow:none; }
+    .run-st { font-size:12px; color:var(--dim); }
+
+    /* PROGRESS */
+    .prog-wrap { display:none; flex-direction:column; gap:6px; }
+    .prog-wrap.on { display:flex; }
+    .prog-track { height:3px; background:var(--bg4); border-radius:3px; overflow:hidden; }
+    .prog-fill { height:100%; width:0%; background:linear-gradient(90deg,var(--red),var(--gold)); border-radius:3px; transition:width 0.3s; }
+    .prog-labels { display:flex; justify-content:space-between; font-size:11px; color:var(--dim); font-family:'JetBrains Mono',monospace; }
+
+    /* RESULT */
+    .result-wrap { display:none; flex-direction:column; gap:12px; }
+    .result-wrap.on { display:flex; }
+    .mode-tabs { display:flex; border:1px solid var(--ln2); border-radius:var(--r); overflow:hidden; align-self:flex-start; }
+    .mtab { display:flex; align-items:center; gap:5px; padding:7px 16px; font-size:12px; font-family:'Noto Sans KR',sans-serif; border:none; cursor:pointer; transition:all 0.15s; background:transparent; color:var(--soft); }
+    .mtab + .mtab { border-left:1px solid var(--ln2); }
+    .mtab.active { background:var(--bg4); color:var(--tx); }
+    .badge { font-size:9.5px; font-family:'JetBrains Mono',monospace; background:var(--teal2); color:var(--teal); border-radius:3px; padding:1px 5px; }
+    .res-hdr { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; }
+    .res-title { font-family:'Noto Serif KR',serif; font-size:14px; font-weight:600; display:flex; align-items:center; gap:8px; }
+    .cpill { font-family:'JetBrains Mono',monospace; font-size:10px; padding:2px 8px; border-radius:10px; border:1px solid; }
+    .ch { color:var(--grn); border-color:rgba(90,158,114,.3); background:var(--grn2); }
+    .cm { color:var(--gold); border-color:rgba(200,168,75,.3); background:var(--gold2); }
+    .cl { color:var(--red); border-color:rgba(212,80,58,.3); background:var(--red2); }
+    .res-btns { display:flex; gap:6px; flex-wrap:wrap; }
+    .btn-sm { display:flex; align-items:center; gap:4px; border:1px solid var(--ln); background:var(--bg3); border-radius:6px; padding:5px 12px; font-size:11.5px; color:var(--soft); font-family:inherit; cursor:pointer; transition:all 0.15s; white-space:nowrap; }
+    .btn-sm:hover { border-color:var(--ln2); color:var(--tx); }
+    .btn-sm.ok { color:var(--grn); border-color:rgba(90,158,114,.35); }
+    .btn-sm.teal { color:var(--teal); border-color:rgba(74,158,175,.35); background:var(--teal2); }
+    .btn-sm.teal:hover { background:rgba(74,158,175,.2); }
+    .out-panel { display:none; flex-direction:column; gap:10px; }
+    .out-panel.on { display:flex; }
+    .result-ta { width:100%; min-height:180px; max-height:420px; border:1px solid var(--ln); border-radius:var(--r); padding:15px; font-family:'Noto Serif KR',serif; font-size:15px; line-height:1.9; color:var(--tx); background:var(--bg2); resize:vertical; outline:none; transition:border-color .15s; }
+    .result-ta:focus { border-color:var(--ln2); }
+
+    /* TABLE */
+    .table-note { display:flex; gap:8px; background:var(--teal2); border:1px solid rgba(74,158,175,.2); border-radius:var(--r); padding:11px 13px; font-size:11px; color:var(--soft); line-height:1.65; }
+    .table-note b { color:var(--teal); }
+    .table-preview-wrap { border:1px solid var(--ln); border-radius:var(--r); background:var(--bg2); overflow:auto; max-height:400px; }
+    .tbl-preview { border-collapse:collapse; width:max-content; min-width:100%; font-family:'Noto Serif KR',serif; font-size:13.5px; }
+    .tbl-preview th,.tbl-preview td { border:1px solid var(--bg5); padding:7px 12px; text-align:left; color:var(--tx); white-space:nowrap; vertical-align:top; }
+    .tbl-preview thead th { background:var(--bg4); font-weight:500; font-size:11px; color:var(--soft); font-family:'JetBrains Mono',monospace; letter-spacing:.04em; }
+    .tbl-preview tr:nth-child(even) td { background:rgba(255,255,255,.02); }
+
+    .res-stats { display:flex; gap:14px; font-size:11px; color:var(--dim); font-family:'JetBrains Mono',monospace; flex-wrap:wrap; }
+    .res-stats b { color:var(--soft); }
+
+    /* NOTICE */
+    .notice { display:flex; gap:9px; background:var(--gold2); border:1px solid rgba(200,168,75,.2); border-radius:var(--r); padding:12px 14px; font-size:11.5px; color:var(--soft); line-height:1.65; }
+    .notice b { color:var(--gold); }
+
+    /* HISTORY */
+    .right { position:sticky; top:58px; max-height:calc(100vh - 78px); background:var(--bg2); border:1px solid var(--ln); border-radius:var(--r2); display:flex; flex-direction:column; overflow:hidden; }
+    .hist-head { display:flex; align-items:center; justify-content:space-between; padding:13px 15px; border-bottom:1px solid var(--ln); flex-shrink:0; }
+    .hist-ht { font-family:'Noto Serif KR',serif; font-size:14px; font-weight:600; display:flex; align-items:center; gap:7px; }
+    .hcount-badge { font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--dim); border:1px solid var(--ln); border-radius:10px; padding:1px 7px; }
+    .btn-clear-all { font-size:11px; color:var(--dim); background:none; border:none; cursor:pointer; font-family:inherit; transition:color .15s; }
+    .btn-clear-all:hover { color:var(--red); }
+    .hist-list { overflow-y:auto; flex:1; padding:8px; display:flex; flex-direction:column; gap:7px; }
+    .hist-empty { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:7px; height:180px; color:var(--dim); font-size:12px; text-align:center; }
+    .hist-empty-icon { font-size:26px; opacity:.3; }
+    .hcard { border:1px solid var(--ln); border-radius:var(--r); background:var(--bg3); overflow:hidden; transition:all .15s; animation:fIn .2s ease; }
+    @keyframes fIn { from{opacity:0;transform:translateY(-4px)} to{opacity:1;transform:translateY(0)} }
+    .hcard:hover { border-color:rgba(255,255,255,.12); }
+    .hcard.open { border-color:rgba(212,80,58,.25); }
+    .hcard-top { display:flex; gap:9px; padding:9px; cursor:pointer; align-items:flex-start; }
+    .hthumb { width:52px; height:38px; flex-shrink:0; border-radius:4px; object-fit:cover; border:1px solid var(--ln); }
+    .hthumb-ph { width:52px; height:38px; flex-shrink:0; border-radius:4px; background:var(--bg4); border:1px solid var(--ln); display:flex; align-items:center; justify-content:center; font-size:16px; opacity:.35; }
+    .hinfo { flex:1; min-width:0; }
+    .hmeta { display:flex; align-items:center; gap:5px; font-size:10px; color:var(--dim); font-family:'JetBrains Mono',monospace; margin-bottom:3px; flex-wrap:wrap; }
+    .hdot { width:5px; height:5px; border-radius:50%; flex-shrink:0; }
+    .htype-badge { font-size:9px; background:var(--teal2); color:var(--teal); border-radius:3px; padding:1px 5px; font-family:'JetBrains Mono',monospace; }
+    .hpreview { font-family:'Noto Serif KR',serif; font-size:12px; color:var(--soft); line-height:1.45; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
+    .hcard-acts { display:flex; gap:4px; padding:0 9px 9px; flex-wrap:wrap; }
+    .hbtn { display:flex; align-items:center; gap:3px; border:1px solid var(--ln); background:var(--bg2); border-radius:5px; padding:4px 9px; font-size:10.5px; color:var(--dim); font-family:inherit; cursor:pointer; transition:all .12s; white-space:nowrap; }
+    .hbtn:hover { color:var(--tx); border-color:var(--ln2); }
+    .hbtn.del:hover { color:var(--red); border-color:rgba(212,80,58,.4); }
+    .hbtn.ok { color:var(--grn); border-color:rgba(90,158,114,.35); }
+    .hbtn.teal { color:var(--teal); border-color:rgba(74,158,175,.35); background:var(--teal2); }
+    .hbody { display:none; padding:0 9px 9px; }
+    .hbody.on { display:block; }
+    .hfull { font-family:'Noto Serif KR',serif; font-size:12.5px; line-height:1.8; color:var(--soft); background:var(--bg2); border:1px solid var(--ln); border-radius:6px; padding:9px 11px; white-space:pre-wrap; word-break:break-all; max-height:180px; overflow-y:auto; user-select:text; cursor:text; }
+    .htbl { overflow-x:auto; max-height:180px; }
+    .htbl table { border-collapse:collapse; font-family:'Noto Serif KR',serif; font-size:12px; color:var(--soft); }
+    .htbl td { border:1px solid var(--bg5); padding:4px 8px; white-space:nowrap; }
+
+    @media (max-width:780px) {
+      .wrap { grid-template-columns:1fr; }
+      .right { position:static; max-height:55vh; }
+      .hdr-sub { display:none; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="hdr">
+    <div class="logo">漢<span class="dot">·</span>한 OCR</div>
+    <div class="hdr-div"></div>
+    <div class="hdr-sub">통합 이미지 텍스트 변환</div>
+    <div class="hdr-r">
+      <div class="pill g">오프라인 처리</div>
+      <div class="pill">Tesseract.js v5</div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- LEFT -->
+  <div class="left">
+
+    <!-- 언어 -->
+    <div>
+      <div class="slabel">인식 언어</div>
+      <div class="lang-box">
+        <div class="lang-info">
+          <div class="lang-main">통합 인식 모드</div>
+          <div class="lang-desc">한글·숫자·영문은 항상 포함됩니다. 한자 자형만 선택하세요.</div>
+          <div class="lang-tags">
+            <span class="ltag hi">한글</span>
+            <span class="ltag hi">숫자</span>
+            <span class="ltag hi">영문</span>
+            <span class="ltag" id="hanjaTag">한자 번체</span>
+          </div>
+        </div>
+        <div>
+          <div class="slabel" style="margin-bottom:5px">한자 자형</div>
+          <div class="hanja-toggle">
+            <button class="htbtn active" data-hanja="chi_tra">繁 번체</button>
+            <button class="htbtn" data-hanja="chi_sim">簡 간체</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 업로드 -->
+    <div class="drop-zone" id="dropZone">
+      <input type="file" id="fileInput" accept="image/*" />
+      <div class="dz-inner" id="dzPrompt">
+        <div class="dz-icon">🖼️</div>
+        <div class="dz-title">이미지 끌어놓기 · 클릭 · Ctrl+V</div>
+        <div class="dz-hint">PNG · JPG · WEBP · BMP · GIF<br><b>모든 처리는 브라우저 안에서만 이루어집니다</b></div>
+      </div>
+      <div id="previewWrap">
+        <img id="previewImg" alt="미리보기" />
+        <div class="prev-meta" id="prevMeta"></div>
+        <button class="btn-resel" id="btnResel">다른 이미지 선택</button>
+      </div>
+    </div>
+
+    <!-- 실행 -->
+    <div class="run-row">
+      <button class="btn-run" id="btnRun" disabled>⚙️ 텍스트 추출</button>
+      <span class="run-st" id="runSt">이미지를 먼저 올려주세요</span>
+    </div>
+
+    <!-- 진행 -->
+    <div class="prog-wrap" id="progWrap">
+      <div class="prog-track"><div class="prog-fill" id="progFill"></div></div>
+      <div class="prog-labels">
+        <span id="progMsg">초기화 중…</span>
+        <span id="progPct">0%</span>
+      </div>
+    </div>
+
+    <!-- 결과 -->
+    <div class="result-wrap" id="resultWrap">
+
+      <div class="mode-tabs" id="modeTabs">
+        <button class="mtab active" data-mode="text">📝 일반 텍스트</button>
+        <button class="mtab" data-mode="table">
+          📊 표 형식 <span class="badge" id="tblBadge" style="display:none">감지됨</span>
+        </button>
+      </div>
+
+      <!-- 텍스트 패널 -->
+      <div class="out-panel on" id="panelText">
+        <div class="res-hdr">
+          <div class="res-title">추출 결과 <span class="cpill" id="confPill"></span></div>
+          <div class="res-btns">
+            <button class="btn-sm" id="btnCopyText">📋 복사</button>
+            <button class="btn-sm" id="btnSaveTxt">💾 기록 저장</button>
+          </div>
+        </div>
+        <textarea class="result-ta" id="resultTa" spellcheck="false"></textarea>
+        <div class="res-stats" id="resStats"></div>
+      </div>
+
+      <!-- 표 패널 -->
+      <div class="out-panel" id="panelTable">
+        <div class="res-hdr">
+          <div class="res-title">표 미리보기</div>
+          <div class="res-btns">
+            <button class="btn-sm teal" id="btnCopyTsv">📋 탭 구분 복사 <small style="font-size:10px;opacity:.75">(한글 붙여넣기용)</small></button>
+            <button class="btn-sm" id="btnCopyCsv">CSV 복사</button>
+            <button class="btn-sm" id="btnSaveTbl">💾 기록 저장</button>
+          </div>
+        </div>
+        <div class="table-note">
+          <span>💡</span>
+          <span>
+            <b>한글(HWP) 표 붙여넣기:</b>
+            "탭 구분 복사" 후 한글에서 표의 첫 번째 셀을 클릭하고 붙여넣기(Ctrl+V).
+            열 수가 맞아야 자동으로 채워집니다.
+          </span>
+        </div>
+        <div class="table-preview-wrap">
+          <table class="tbl-preview" id="tablePreview"></table>
+        </div>
+        <div class="res-stats" id="tblStats"></div>
+      </div>
+
+    </div>
+
+    <!-- 안내 -->
+    <div class="notice">
+      <span>💡</span>
+      <span>
+        <b>처음 실행 시</b> 언어 데이터를 다운로드합니다 (한글 ~5MB, 번체 ~22MB).
+        이후엔 브라우저 캐시로 빠릅니다.
+        <b>표 인식</b>은 줄과 열이 뚜렷한 이미지일수록 정확합니다.
+        숫자·영문은 별도 설정 없이 항상 인식됩니다.
+      </span>
+    </div>
+
+  </div>
+
+  <!-- RIGHT: HISTORY -->
+  <div class="right">
+    <div class="hist-head">
+      <div class="hist-ht">변환 기록 <span class="hcount-badge" id="hcountBadge">0</span></div>
+      <button class="btn-clear-all" id="btnClearAll">전체 삭제</button>
+    </div>
+    <div class="hist-list" id="histList">
+      <div class="hist-empty" id="histEmpty">
+        <div class="hist-empty-icon">📂</div>
+        <div>저장된 기록이 없습니다<br>추출 후 <b>기록 저장</b>을 누르세요</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+(function () {
+  const STORE = 'hanOcrHistory_v3';
+  let imageFile = null, hanjaMode = 'chi_tra', isRunning = false;
+  let ocr = null, tableData = null, currentMode = 'text';
+
+  const $ = id => document.getElementById(id);
+  const dropZone = $('dropZone'), fileInput = $('fileInput'), dzPrompt = $('dzPrompt');
+  const previewWrap = $('previewWrap'), previewImg = $('previewImg'), prevMeta = $('prevMeta');
+  const btnResel = $('btnResel'), btnRun = $('btnRun'), runSt = $('runSt');
+  const progWrap = $('progWrap'), progFill = $('progFill'), progMsg = $('progMsg'), progPct = $('progPct');
+  const resultWrap = $('resultWrap'), resultTa = $('resultTa'), confPill = $('confPill');
+  const resStats = $('resStats'), tablePreview = $('tablePreview'), tblStats = $('tblStats');
+  const tblBadge = $('tblBadge'), panelText = $('panelText'), panelTable = $('panelTable');
+  const histList = $('histList'), hcountBadge = $('hcountBadge'), histEmpty = $('histEmpty');
+
+  /* ── 한자 토글 ── */
+  document.querySelectorAll('.htbtn').forEach(btn => btn.addEventListener('click', () => {
+    document.querySelectorAll('.htbtn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    hanjaMode = btn.dataset.hanja;
+    $('hanjaTag').textContent = hanjaMode === 'chi_tra' ? '한자 번체' : '한자 간체';
+  }));
+
+  /* ── 업로드 ── */
+  dropZone.addEventListener('click', e => {
+    if (e.target === btnResel || isRunning) return;
+    if (!dropZone.classList.contains('filled')) fileInput.click();
+  });
+  btnResel.addEventListener('click', e => { e.stopPropagation(); fileInput.click(); });
+  fileInput.addEventListener('change', () => { if (fileInput.files[0]) loadFile(fileInput.files[0]); });
+  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+  dropZone.addEventListener('drop', e => {
+    e.preventDefault(); dropZone.classList.remove('drag-over');
+    const f = e.dataTransfer.files[0];
+    if (f && f.type.startsWith('image/')) loadFile(f);
+  });
+  document.addEventListener('paste', e => {
+    if (isRunning) return;
+    for (const item of (e.clipboardData?.items || []))
+      if (item.type.startsWith('image/')) { loadFile(item.getAsFile()); break; }
+  });
+
+  function loadFile(f) {
+    imageFile = f;
+    previewImg.src = URL.createObjectURL(f);
+    prevMeta.textContent = `${f.name}  ·  ${(f.size/1024).toFixed(1)} KB`;
+    dzPrompt.style.display = 'none';
+    previewWrap.classList.add('on');
+    dropZone.classList.add('filled');
+    btnRun.disabled = false;
+    runSt.textContent = '준비 완료 — 버튼을 눌러 시작하세요';
+    resultWrap.classList.remove('on');
+    progWrap.classList.remove('on');
+    ocr = null; tableData = null;
+  }
+
+  /* ── OCR ── */
+  btnRun.addEventListener('click', async () => {
+    if (!imageFile || isRunning) return;
+    isRunning = true; btnRun.disabled = true;
+    runSt.textContent = '처리 중…';
+    progWrap.classList.add('on'); resultWrap.classList.remove('on');
+    setProg(0, '엔진 로드 중…');
+
+    const lang = `kor+${hanjaMode}+eng`;
+    try {
+      const result = await Tesseract.recognize(imageFile, lang, { logger: onLog });
+      const text  = result.data.text.trim();
+      const conf  = Math.round(result.data.confidence);
+      const words = result.data.words || [];
+
+      ocr = { text, conf, words, lang };
+
+      resultTa.value = text;
+      confPill.textContent = `신뢰도 ${conf}%`;
+      confPill.className = 'cpill ' + cc(conf);
+      const chars = text.replace(/\s/g,'').length;
+      const lines = text.split('\n').filter(l => l.trim()).length;
+      resStats.innerHTML =
+        `<span>글자 <b>${chars.toLocaleString()}</b></span>` +
+        `<span>줄 <b>${lines}</b></span>` +
+        `<span>신뢰도 <b>${conf}%</b></span>` +
+        `<span>언어 <b>${langLabel(lang)}</b></span>`;
+
+      tableData = detectTable(words);
+      if (tableData) {
+        renderTablePreview(tableData);
+        tblBadge.style.display = '';
+        tblStats.innerHTML = `<span>행 <b>${tableData.length}</b></span><span>열 <b>${tableData[0]?.length||0}</b></span>`;
+      } else { tblBadge.style.display = 'none'; }
+
+      resultWrap.classList.add('on');
+      setProg(100, '완료!');
+      runSt.textContent = `추출 완료 (신뢰도 ${conf}%)`;
+      switchMode(tableData && tableData.length >= 2 ? 'table' : 'text');
+    } catch (err) {
+      runSt.textContent = '오류: ' + err.message;
+      setProg(0, '오류'); console.error(err);
+    } finally { isRunning = false; btnRun.disabled = false; }
+  });
+
+  function onLog(m) {
+    const s = m.status;
+    if (s === 'recognizing text') setProg(Math.round(40 + m.progress*58), `인식 중… ${Math.round(m.progress*100)}%`);
+    else if (s === 'loading tesseract core') setProg(5, 'Tesseract 코어 로드 중…');
+    else if (s === 'initializing tesseract') setProg(12, '엔진 초기화 중…');
+    else if (s === 'loading language traineddata') setProg(22, '언어 데이터 다운로드 중…');
+    else if (s === 'initializing api') setProg(38, 'API 초기화 중…');
+  }
+
+  function setProg(p, msg) { progFill.style.width=p+'%'; progMsg.textContent=msg; progPct.textContent=p+'%'; }
+  function cc(c) { return c>=70?'ch':c>=40?'cm':'cl'; }
+  function langLabel(l) {
+    if (l.includes('chi_tra')) return '한·번체·英';
+    return '한·간체·英';
+  }
+
+  /* ── 모드 탭 ── */
+  $('modeTabs').addEventListener('click', e => {
+    const btn = e.target.closest('.mtab');
+    if (btn) switchMode(btn.dataset.mode);
+  });
+  function switchMode(mode) {
+    currentMode = mode;
+    document.querySelectorAll('.mtab').forEach(b => b.classList.toggle('active', b.dataset.mode===mode));
+    panelText.classList.toggle('on', mode==='text');
+    panelTable.classList.toggle('on', mode==='table');
+  }
+
+  /* ══════════════════════════════════════
+     표 감지 알고리즘
+     ① word bounding box로 행 클러스터링
+     ② X축 분포로 열 수 추정
+     ③ 각 단어를 가장 가까운 열에 배정
+  ══════════════════════════════════════ */
+  function detectTable(words) {
+    if (!words || words.length < 6) return null;
+    const ws = words.filter(w => w.confidence > 15 && w.text.trim());
+    if (ws.length < 6) return null;
+
+    const medH = median(ws.map(w => w.bbox.y1 - w.bbox.y0));
+    const rowGap = medH * 0.7;
+
+    /* 행 클러스터링 */
+    const rows = [];
+    for (const w of [...ws].sort((a,b) => a.bbox.y0 - b.bbox.y0)) {
+      const cy = (w.bbox.y0 + w.bbox.y1) / 2;
+      let found = false;
+      for (const row of rows) {
+        if (Math.abs(cy - row.cy) <= rowGap) {
+          row.ws.push(w);
+          row.cy = row.ws.reduce((s,x)=>s+(x.bbox.y0+x.bbox.y1)/2,0)/row.ws.length;
+          found = true; break;
+        }
+      }
+      if (!found) rows.push({ cy, ws: [w] });
+    }
+    rows.forEach(r => r.ws.sort((a,b) => a.bbox.x0 - b.bbox.x0));
+
+    /* 표 여부 판단 */
+    const multiRows = rows.filter(r => r.ws.length >= 2).length;
+    if (rows.length < 2 || multiRows < Math.max(2, rows.length * 0.4)) return null;
+
+    /* 열 수: 가장 많이 등장한 단어 수 */
+    const colCounts = rows.map(r => r.ws.length);
+    const colCount = mode_of(colCounts);
+    if (colCount < 2) return null;
+
+    /* X 범위로 열 경계 설정 */
+    const allCx = ws.map(w => (w.bbox.x0+w.bbox.x1)/2);
+    const xMin = Math.min(...allCx), xMax = Math.max(...allCx);
+    const colW = (xMax - xMin + 1) / colCount;
+
+    /* 각 행 → colCount 셀 배열 */
+    const grid = rows.map(row => {
+      const cells = Array(colCount).fill('');
+      for (const w of row.ws) {
+        const cx = (w.bbox.x0 + w.bbox.x1) / 2;
+        const ci = Math.min(colCount-1, Math.floor((cx - xMin) / colW));
+        cells[ci] = (cells[ci] ? cells[ci]+' ' : '') + w.text;
+      }
+      return cells;
+    });
+
+    return grid;
+  }
+
+  function median(arr) {
+    const s = [...arr].sort((a,b)=>a-b);
+    return s[Math.floor(s.length/2)] || 20;
+  }
+  function mode_of(arr) {
+    const freq = {};
+    arr.forEach(v => freq[v] = (freq[v]||0)+1);
+    return +Object.keys(freq).sort((a,b)=>freq[b]-freq[a])[0];
+  }
+
+  /* 표 렌더 */
+  function renderTablePreview(grid) {
+    if (!grid?.length) return;
+    const thead = document.createElement('thead');
+    const hr = document.createElement('tr');
+    for (let i=0;i<grid[0].length;i++) {
+      const th = document.createElement('th'); th.textContent=`열 ${i+1}`; hr.appendChild(th);
+    }
+    thead.appendChild(hr);
+    const tbody = document.createElement('tbody');
+    grid.forEach(row => {
+      const tr = document.createElement('tr');
+      row.forEach(c => { const td=document.createElement('td'); td.textContent=c; tr.appendChild(td); });
+      tbody.appendChild(tr);
+    });
+    tablePreview.innerHTML='';
+    tablePreview.appendChild(thead);
+    tablePreview.appendChild(tbody);
+  }
+
+  /* ── 복사 ── */
+  async function copyStr(str, btn) {
+    try { await navigator.clipboard.writeText(str); }
+    catch { const t=document.createElement('textarea'); t.value=str; document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t); }
+    const orig = btn.innerHTML;
+    btn.textContent='✅ 복사됨'; btn.classList.add('ok');
+    setTimeout(()=>{ btn.innerHTML=orig; btn.classList.remove('ok'); }, 2000);
+  }
+
+  $('btnCopyText').addEventListener('click', e => copyStr(resultTa.value, e.currentTarget));
+  $('btnCopyTsv').addEventListener('click', e => {
+    if (tableData) copyStr(tableData.map(r=>r.join('\t')).join('\n'), e.currentTarget);
+  });
+  $('btnCopyCsv').addEventListener('click', e => {
+    if (tableData) copyStr(tableData.map(r=>r.map(c=>`"${c.replace(/"/g,'""')}"`).join(',')).join('\n'), e.currentTarget);
+  });
+
+  /* ── 기록 저장 ── */
+  async function saveEntry(type) {
+    if (!ocr || !imageFile) return;
+    const thumb = await makeThumbnail(imageFile);
+    const entry = {
+      id: Date.now(), at: new Date().toISOString(),
+      text: ocr.text, tableData: type==='table' ? tableData : null,
+      type, conf: ocr.conf, lang: ocr.lang, fileName: imageFile.name, thumb,
+    };
+    const h = loadHist(); h.unshift(entry); saveHist(h); renderHist();
+  }
+
+  $('btnSaveTxt').addEventListener('click', async function() {
+    await saveEntry('text'); this.textContent='✅ 저장됨';
+    setTimeout(()=>this.textContent='💾 기록 저장', 1800);
+  });
+  $('btnSaveTbl').addEventListener('click', async function() {
+    await saveEntry(tableData?'table':'text'); this.textContent='✅ 저장됨';
+    setTimeout(()=>this.textContent='💾 기록 저장', 1800);
+  });
+
+  /* 썸네일 */
+  function makeThumbnail(file) {
+    return new Promise(res => {
+      const img=new Image(), url=URL.createObjectURL(file);
+      img.onload=()=>{
+        const W=120, H=Math.round(img.height*W/img.width);
+        const c=document.createElement('canvas'); c.width=W; c.height=H;
+        c.getContext('2d').drawImage(img,0,0,W,H);
+        URL.revokeObjectURL(url); res(c.toDataURL('image/jpeg',.7));
+      };
+      img.onerror=()=>{ URL.revokeObjectURL(url); res(null); };
+      img.src=url;
+    });
+  }
+
+  /* localStorage */
+  function loadHist() { try{return JSON.parse(localStorage.getItem(STORE)||'[]');}catch{return[];} }
+  function saveHist(h) { try{localStorage.setItem(STORE,JSON.stringify(h.slice(0,50)));}catch{try{localStorage.setItem(STORE,JSON.stringify(h.slice(0,20)));}catch{}} }
+  function delEntry(id) { saveHist(loadHist().filter(e=>e.id!==id)); renderHist(); }
+
+  /* ── 기록 렌더 ── */
+  function renderHist() {
+    const h = loadHist();
+    hcountBadge.textContent = h.length;
+    if (!h.length) { histList.innerHTML=''; histList.appendChild(histEmpty); histEmpty.style.display=''; return; }
+    histEmpty.style.display='none';
+    histList.innerHTML='';
+    h.forEach(e => histList.appendChild(makeCard(e)));
+  }
+
+  function makeCard(e) {
+    const d = new Date(e.at);
+    const dt = `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+    const dotC = e.conf>=70?'#5a9e72':e.conf>=40?'#c8a84b':'#d4503a';
+    const isTable = e.type==='table' && e.tableData;
+    const prev = e.text.slice(0,70).replace(/\n/g,' ');
+
+    const card = document.createElement('div');
+    card.className = 'hcard';
+    card.innerHTML = `
+      <div class="hcard-top">
+        ${e.thumb?`<img class="hthumb" src="${e.thumb}" />`:`<div class="hthumb-ph">🖼️</div>`}
+        <div class="hinfo">
+          <div class="hmeta">
+            <div class="hdot" style="background:${dotC}"></div>
+            <span>${dt}</span><span>·</span><span>${e.conf}%</span>
+            ${isTable?`<span class="htype-badge">표</span>`:''}
+          </div>
+          <div class="hpreview">${esc(prev)}</div>
+        </div>
+      </div>
+      <div class="hcard-acts">
+        <button class="hbtn btn-exp">▼ 펼치기</button>
+        <button class="hbtn btn-cpt">📋 텍스트</button>
+        ${isTable?`<button class="hbtn teal btn-tsv">표 복사</button>`:''}
+        <button class="hbtn btn-load">↩ 불러오기</button>
+        <button class="hbtn del btn-del">🗑️</button>
+      </div>
+      <div class="hbody">
+        ${isTable ? renderMiniTbl(e.tableData) : `<div class="hfull">${esc(e.text)}</div>`}
+      </div>`;
+
+    card.querySelector('.btn-exp').addEventListener('click', ev => {
+      ev.stopPropagation();
+      const b=ev.currentTarget, body=card.querySelector('.hbody');
+      const open=body.classList.toggle('on');
+      b.textContent=open?'▲ 접기':'▼ 펼치기';
+      card.classList.toggle('open',open);
+    });
+    card.querySelector('.btn-cpt').addEventListener('click', ev => { ev.stopPropagation(); copyStr(e.text, ev.currentTarget); });
+    const tsvBtn=card.querySelector('.btn-tsv');
+    if(tsvBtn) tsvBtn.addEventListener('click', ev => {
+      ev.stopPropagation();
+      copyStr(e.tableData.map(r=>r.join('\t')).join('\n'), ev.currentTarget);
+    });
+    card.querySelector('.btn-load').addEventListener('click', ev => {
+      ev.stopPropagation();
+      resultTa.value=e.text;
+      confPill.textContent=`신뢰도 ${e.conf}%`; confPill.className='cpill '+cc(e.conf);
+      resStats.innerHTML=`<span>글자 <b>${e.text.replace(/\s/g,'').length.toLocaleString()}</b></span>`;
+      if(e.tableData){ tableData=e.tableData; renderTablePreview(e.tableData); tblBadge.style.display=''; }
+      resultWrap.classList.add('on');
+      switchMode(e.tableData?'table':'text');
+      window.scrollTo({top:0,behavior:'smooth'});
+    });
+    card.querySelector('.btn-del').addEventListener('click', ev => {
+      ev.stopPropagation();
+      card.style.cssText='opacity:0;transform:translateX(8px);transition:all .18s';
+      setTimeout(()=>delEntry(e.id),190);
+    });
+    return card;
+  }
+
+  function renderMiniTbl(grid) {
+    if(!grid?.length) return '';
+    const rows=grid.map(r=>`<tr>${r.map(c=>`<td>${esc(c)}</td>`).join('')}</tr>`).join('');
+    return `<div class="htbl"><table>${rows}</table></div>`;
+  }
+  function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  $('btnClearAll').addEventListener('click', ()=>{
+    if(!loadHist().length) return;
+    if(confirm('기록을 전부 삭제할까요?')){ saveHist([]); renderHist(); }
+  });
+
+  renderHist();
+})();
+</script>
+</body>
+</html>
